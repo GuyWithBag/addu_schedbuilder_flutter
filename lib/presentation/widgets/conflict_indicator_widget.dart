@@ -172,7 +172,7 @@ class _ConflictCard extends StatelessWidget {
           const SizedBox(height: 12),
 
           // Conflicting classes
-          Text(
+          SelectableText(
             'Conflicting Classes:',
             style: TextStyle(
               fontWeight: FontWeight.bold,

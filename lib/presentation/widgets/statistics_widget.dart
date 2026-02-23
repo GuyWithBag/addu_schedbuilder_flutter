@@ -195,7 +195,7 @@ class _StatCard extends StatelessWidget {
         children: [
           Icon(icon, color: color, size: 28),
           const SizedBox(height: 8),
-          Text(
+          SelectableText(
             value,
             style: TextStyle(
               fontSize: 24,
@@ -204,7 +204,7 @@ class _StatCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
+          SelectableText(
             label,
             style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
           ),
@@ -234,11 +234,11 @@ class _InfoRow extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            SelectableText(
               label,
               style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
-            Text(
+            SelectableText(
               value,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),

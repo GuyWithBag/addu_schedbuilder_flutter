@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'data/local/hive_setup.dart';
 import 'data/repositories/schedule_repository_impl.dart';
 import 'presentation/providers/display_config_provider.dart';
@@ -57,6 +58,15 @@ class MyApp extends HookWidget {
         ),
       ),
       themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      builder: (context, child) => ResponsiveBreakpoints.builder(
+        child: child!,
+        breakpoints: [
+          const Breakpoint(start: 0, end: 450, name: MOBILE),
+          const Breakpoint(start: 451, end: 800, name: TABLET),
+          const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+          const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
+        ],
+      ),
       home: const HomeScreen(),
     );
   }

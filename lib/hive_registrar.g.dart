@@ -3,7 +3,6 @@
 // Check in to version control
 
 import 'package:hive_ce/hive.dart';
-import 'package:addu_schedbuilder_flutter/data/local/hive_adapters.dart';
 import 'package:addu_schedbuilder_flutter/domain/models/class_data.dart';
 import 'package:addu_schedbuilder_flutter/domain/models/class_note.dart';
 import 'package:addu_schedbuilder_flutter/domain/models/class_period.dart';
@@ -22,33 +21,19 @@ extension HiveRegistrar on HiveInterface {
   void registerAdapters() {
     registerAdapter(BarSlotAdapter());
     registerAdapter(ClassDataAdapter());
-    registerAdapter(ClassDataAdapter());
     registerAdapter(ClassNoteAdapter());
-    registerAdapter(ClassNoteAdapter());
-    registerAdapter(ClassPeriodAdapter());
     registerAdapter(ClassPeriodAdapter());
     registerAdapter(ClassSlotAdapter());
     registerAdapter(ColorDataAdapter());
-    registerAdapter(ColorDataAdapter());
     registerAdapter(EmptySlotAdapter());
     registerAdapter(NoteTypeAdapter());
-    registerAdapter(NoteTypeAdapter());
-    registerAdapter(NotificationConfigAdapter());
     registerAdapter(NotificationConfigAdapter());
     registerAdapter(SavedScheduleAdapter());
-    registerAdapter(SavedScheduleAdapter());
-    registerAdapter(ScheduleRowAdapter());
     registerAdapter(ScheduleRowAdapter());
     registerAdapter(ScheduleTableAdapter());
-    registerAdapter(ScheduleTableAdapter());
-    registerAdapter(TeacherAdapter());
     registerAdapter(TeacherAdapter());
     registerAdapter(ThemePresetAdapter());
-    registerAdapter(ThemePresetAdapter());
     registerAdapter(TimeAdapter());
-    registerAdapter(TimeAdapter());
-    registerAdapter(TimeSlotAdapter());
-    registerAdapter(WeekdayAdapter());
     registerAdapter(WeekdayAdapter());
   }
 }
@@ -57,33 +42,19 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
   void registerAdapters() {
     registerAdapter(BarSlotAdapter());
     registerAdapter(ClassDataAdapter());
-    registerAdapter(ClassDataAdapter());
     registerAdapter(ClassNoteAdapter());
-    registerAdapter(ClassNoteAdapter());
-    registerAdapter(ClassPeriodAdapter());
     registerAdapter(ClassPeriodAdapter());
     registerAdapter(ClassSlotAdapter());
     registerAdapter(ColorDataAdapter());
-    registerAdapter(ColorDataAdapter());
     registerAdapter(EmptySlotAdapter());
     registerAdapter(NoteTypeAdapter());
-    registerAdapter(NoteTypeAdapter());
-    registerAdapter(NotificationConfigAdapter());
     registerAdapter(NotificationConfigAdapter());
     registerAdapter(SavedScheduleAdapter());
-    registerAdapter(SavedScheduleAdapter());
-    registerAdapter(ScheduleRowAdapter());
     registerAdapter(ScheduleRowAdapter());
     registerAdapter(ScheduleTableAdapter());
-    registerAdapter(ScheduleTableAdapter());
-    registerAdapter(TeacherAdapter());
     registerAdapter(TeacherAdapter());
     registerAdapter(ThemePresetAdapter());
-    registerAdapter(ThemePresetAdapter());
     registerAdapter(TimeAdapter());
-    registerAdapter(TimeAdapter());
-    registerAdapter(TimeSlotAdapter());
-    registerAdapter(WeekdayAdapter());
     registerAdapter(WeekdayAdapter());
   }
 }

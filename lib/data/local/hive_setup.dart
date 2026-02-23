@@ -1,10 +1,10 @@
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:addu_schedbuilder_flutter/hive_registrar.g.dart';
 import '../../domain/models/class_note.dart';
 import '../../domain/models/notification_config.dart';
 import '../../domain/models/saved_schedule.dart';
 import '../../domain/models/theme_preset.dart';
-import '../../hive_registrar.g.dart';
 
 /// Initialize Hive CE with all type adapters
 Future<void> initHive() async {

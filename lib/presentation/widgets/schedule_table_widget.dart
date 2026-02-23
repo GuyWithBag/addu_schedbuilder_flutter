@@ -146,10 +146,10 @@ class ScheduleTableWidget extends HookWidget {
         // Day cells
         ...row.columns.map<Widget>((slot) {
           if (slot == null) {
-            return const SizedBox(
+            return SizedBox(
               width: 100,
-              height: 60,
-              child: ScheduleEmptyCell(),
+              height: row.duration.toDouble(),
+              child: const ScheduleEmptyCell(),
             );
           }
 

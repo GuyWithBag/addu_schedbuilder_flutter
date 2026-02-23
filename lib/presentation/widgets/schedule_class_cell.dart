@@ -48,7 +48,7 @@ class ScheduleClassCell extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(6),
+        padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
           color: bgColor,
           border: Border.all(color: theme.dividerColor),
@@ -64,30 +64,33 @@ class ScheduleClassCell extends StatelessWidget {
               style: theme.textTheme.labelLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: textColor,
-                fontSize: fontSize + 2,
+                fontSize: fontSize + 1,
+                height: 1.0,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             if (duration >= 45) ...[
-              const SizedBox(height: 2),
+              const SizedBox(height: 1),
               Text(
                 classData.subject,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: textColor,
-                  fontSize: fontSize,
+                  fontSize: fontSize - 1,
+                  height: 1.0,
                 ),
-                maxLines: duration >= 90 ? 2 : 1,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ],
-            if (duration >= 60 && classData.schedule.isNotEmpty) ...[
-              const SizedBox(height: 2),
+            if (duration >= 75 && classData.schedule.isNotEmpty) ...[
+              const SizedBox(height: 1),
               Text(
                 classData.schedule.first.room,
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: textColor.withOpacity(0.8),
                   fontSize: fontSize - 2,
+                  height: 1.0,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

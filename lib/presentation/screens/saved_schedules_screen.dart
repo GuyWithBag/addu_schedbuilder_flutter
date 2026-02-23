@@ -5,6 +5,7 @@ import '../providers/saved_schedules_provider.dart';
 import '../providers/schedule_provider.dart';
 import '../widgets/saved_schedule_card.dart';
 import '../../domain/services/color_service.dart';
+import '../../domain/models/theme_preset.dart';
 
 /// Screen displaying all saved schedules
 class SavedSchedulesScreen extends HookWidget {
@@ -232,29 +233,53 @@ class SavedSchedulesScreen extends HookWidget {
                 onPressed: () async {
                   // Restore the deleted schedule
                   try {
-                    // Extract colors from the deleted schedule's theme preset
-                    final classColors = <String, ColorSet>{};
+                    // Extract colors from the deleted schedule's theme preset or regenerate
+                    Map<String, ColorSet> classColors;
+
                     if (deletedSchedule.themePreset != null) {
+                      // Convert ColorData back to ColorSet
+                      classColors = {};
                       for (final entry
                           in deletedSchedule.themePreset!.classColors.entries) {
                         final colorData = entry.value;
-                        final color = Color.fromARGB(
-                          colorData.alpha,
-                          colorData.red,
-                          colorData.green,
-                          colorData.blue,
-                        );
-                        classColors[entry.key] = ColorService.createColorSet(
-                          color,
+                        classColors[entry.key] = ColorSet(
+                          primary: colorData,
+                          light: ColorData(
+                            red: (colorData.red + (255 - colorData.red) * 0.2)
+                                .round()
+                                .clamp(0, 255),
+                            green:
+                                (colorData.green +
+                                        (255 - colorData.green) * 0.2)
+                                    .round()
+                                    .clamp(0, 255),
+                            blue:
+                                (colorData.blue + (255 - colorData.blue) * 0.2)
+                                    .round()
+                                    .clamp(0, 255),
+                            alpha: colorData.alpha,
+                          ),
+                          dark: ColorData(
+                            red: (colorData.red * 0.8).round().clamp(0, 255),
+                            green: (colorData.green * 0.8).round().clamp(
+                              0,
+                              255,
+                            ),
+                            blue: (colorData.blue * 0.8).round().clamp(0, 255),
+                            alpha: colorData.alpha,
+                          ),
+                          text: const ColorData(
+                            red: 255,
+                            green: 255,
+                            blue: 255,
+                            alpha: 255,
+                          ),
                         );
                       }
-                    }
-
-                    // If no theme preset, regenerate colors
-                    if (classColors.isEmpty) {
+                    } else {
+                      // Regenerate colors
                       final classes = deletedSchedule.table.getAllClasses();
-                      final generated = ColorService.assignColors(classes);
-                      classColors.addAll(generated);
+                      classColors = ColorService.assignColors(classes);
                     }
 
                     await context.read<SavedSchedulesProvider>().saveSchedule(

@@ -62,4 +62,24 @@ enum Weekday {
         throw ArgumentError('Invalid weekday: ${dateTime.weekday}');
     }
   }
+
+  /// Convert to DateTime weekday value (1-7)
+  int get dartWeekday {
+    switch (this) {
+      case Weekday.monday:
+        return DateTime.monday;
+      case Weekday.tuesday:
+        return DateTime.tuesday;
+      case Weekday.wednesday:
+        return DateTime.wednesday;
+      case Weekday.thursday:
+        return DateTime.thursday;
+      case Weekday.friday:
+        return DateTime.friday;
+      case Weekday.saturday:
+        return DateTime.saturday;
+      case Weekday.sunday:
+        return DateTime.sunday;
+    }
+  }
 }

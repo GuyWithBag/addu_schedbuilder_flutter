@@ -330,6 +330,14 @@ class InputScreen extends HookWidget {
                 FilledButton.tonalIcon(
                   onPressed: () async {
                     Navigator.pop(context);
+                    await _exportICS(context, scheduleTable);
+                  },
+                  icon: const Icon(Icons.calendar_today),
+                  label: const Text('Calendar (.ics)'),
+                ),
+                FilledButton.tonalIcon(
+                  onPressed: () async {
+                    Navigator.pop(context);
                     await _exportJSON(context, scheduleTable);
                   },
                   icon: const Icon(Icons.code),
@@ -411,6 +419,48 @@ class InputScreen extends HookWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error exporting PDF: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _exportICS(BuildContext context, scheduleTable) async {
+    try {
+      // Default semester dates (current date + 4 months)
+      final semesterStart = DateTime.now();
+      final semesterEnd = semesterStart.add(const Duration(days: 120));
+
+      final icsString = ExportService.exportToICS(
+        scheduleTable,
+        'My Schedule',
+        semesterStart: semesterStart,
+        semesterEnd: semesterEnd,
+      );
+
+      final directory = await getTemporaryDirectory();
+      final file = File('${directory.path}/schedule.ics');
+      await file.writeAsString(icsString);
+
+      await Share.shareXFiles([
+        XFile(file.path, mimeType: 'text/calendar'),
+      ], text: 'My Schedule - Import to Calendar');
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Schedule exported as Calendar file (.ics)!'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error exporting calendar: $e'),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
           ),

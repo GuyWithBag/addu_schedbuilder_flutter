@@ -7,6 +7,8 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import '../models/saved_schedule.dart';
 import '../models/schedule_table.dart';
+import '../models/weekday.dart';
+import '../models/class_data.dart';
 
 /// Service for exporting schedules to various formats
 class ExportService {
@@ -101,8 +103,6 @@ class ExportService {
     ScheduleTable table,
     Map<String, Color> classColors,
   ) {
-    final classes = table.getAllClasses();
-
     return pw.Table(
       border: pw.TableBorder.all(),
       children: [
@@ -191,5 +191,129 @@ class ExportService {
     } catch (e) {
       throw Exception('Failed to import JSON: $e');
     }
+  }
+
+  /// Export schedule as .ics (iCalendar) file
+  static String exportToICS(
+    ScheduleTable table,
+    String scheduleName, {
+    DateTime? semesterStart,
+    DateTime? semesterEnd,
+  }) {
+    try {
+      final buffer = StringBuffer();
+
+      // Calendar header
+      buffer.writeln('BEGIN:VCALENDAR');
+      buffer.writeln('VERSION:2.0');
+      buffer.writeln('PRODID:-//SchedBuilder//Schedule//EN');
+      buffer.writeln('CALSCALE:GREGORIAN');
+      buffer.writeln('METHOD:PUBLISH');
+      buffer.writeln('X-WR-CALNAME:$scheduleName');
+      buffer.writeln('X-WR-CALDESC:Class schedule exported from SchedBuilder');
+
+      // Default semester dates if not provided (current semester)
+      final start = semesterStart ?? DateTime.now();
+      final end = semesterEnd ?? start.add(const Duration(days: 120));
+
+      // Get all classes
+      final classes = table.getAllClasses();
+
+      // Create recurring events for each class
+      for (final classData in classes) {
+        for (final period in classData.schedule) {
+          _addClassEvents(buffer, classData, period, start, end);
+        }
+      }
+
+      buffer.writeln('END:VCALENDAR');
+      return buffer.toString();
+    } catch (e) {
+      throw Exception('Failed to export ICS: $e');
+    }
+  }
+
+  /// Add class events to the calendar buffer (one per weekday)
+  static void _addClassEvents(
+    StringBuffer buffer,
+    ClassData classData,
+    period,
+    DateTime semesterStart,
+    DateTime semesterEnd,
+  ) {
+    // Create an event for each weekday in the period
+    for (final weekday in period.weekdays) {
+      final firstOccurrence = _findFirstWeekday(semesterStart, weekday);
+
+      // Create event start and end times
+      final eventStart = DateTime(
+        firstOccurrence.year,
+        firstOccurrence.month,
+        firstOccurrence.day,
+        period.start.hour,
+        period.start.minute,
+      );
+
+      final eventEnd = DateTime(
+        firstOccurrence.year,
+        firstOccurrence.month,
+        firstOccurrence.day,
+        period.end.hour,
+        period.end.minute,
+      );
+
+      // Build description
+      final descriptionParts = [
+        classData.title,
+        if (classData.teacher != null)
+          'Teacher: ${classData.teacher!.fullName}',
+        if (classData.teacher?.emails.isNotEmpty ?? false)
+          'Email: ${classData.teacher!.emails.first}',
+      ];
+
+      // Write event
+      buffer.writeln('BEGIN:VEVENT');
+      buffer.writeln(
+        'UID:${classData.code}-${weekday.name}-${period.start.hour}${period.start.minute}@schedbuilder.app',
+      );
+      buffer.writeln('DTSTAMP:${_formatICalDateTime(DateTime.now())}');
+      buffer.writeln('DTSTART:${_formatICalDateTime(eventStart)}');
+      buffer.writeln('DTEND:${_formatICalDateTime(eventEnd)}');
+      buffer.writeln('SUMMARY:${classData.code} - ${classData.subject}');
+      buffer.writeln('DESCRIPTION:${descriptionParts.join('\\n')}');
+      buffer.writeln('LOCATION:${period.room}');
+      buffer.writeln(
+        'RRULE:FREQ=WEEKLY;UNTIL=${_formatICalDateTime(semesterEnd)}',
+      );
+      buffer.writeln('END:VEVENT');
+    }
+  }
+
+  /// Find the first occurrence of a weekday starting from a given date
+  static DateTime _findFirstWeekday(DateTime start, Weekday weekday) {
+    final targetWeekday = _weekdayToDateTime(weekday);
+    var date = start;
+
+    while (date.weekday != targetWeekday) {
+      date = date.add(const Duration(days: 1));
+    }
+
+    return date;
+  }
+
+  /// Convert Weekday enum to DateTime weekday (1-7)
+  static int _weekdayToDateTime(Weekday weekday) {
+    return weekday.dartWeekday;
+  }
+
+  /// Format DateTime for iCalendar (YYYYMMDDTHHMMSS)
+  static String _formatICalDateTime(DateTime dt) {
+    return '${dt.year.toString().padLeft(4, '0')}'
+        '${dt.month.toString().padLeft(2, '0')}'
+        '${dt.day.toString().padLeft(2, '0')}'
+        'T'
+        '${dt.hour.toString().padLeft(2, '0')}'
+        '${dt.minute.toString().padLeft(2, '0')}'
+        '${dt.second.toString().padLeft(2, '0')}';
   }
 }

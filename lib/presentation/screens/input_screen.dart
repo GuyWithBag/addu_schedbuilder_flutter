@@ -424,7 +424,14 @@ class InputScreen extends HookWidget {
       // Convert Map<String, ColorSet> to Map<String, Color>
       final colorMap = <String, Color>{};
       classColors.forEach((String key, value) {
-        colorMap[key] = value.primary;
+        // value is ColorSet, value.primary is ColorData
+        final colorData = value.primary;
+        colorMap[key] = Color.fromARGB(
+          colorData.alpha,
+          colorData.red,
+          colorData.green,
+          colorData.blue,
+        );
       });
 
       final bytes = await ExportService.exportToPDF(

@@ -46,7 +46,7 @@ class ScheduleTable with _$ScheduleTable {
   List<ClassData> getClassesForWeekday(Weekday weekday) {
     final classes = <ClassData>[];
     final seen = <String>{};
-    final weekdayIndex = weekday.index;
+    final weekdayIndex = weekday.dayIndex;
 
     for (final row in rows) {
       if (weekdayIndex < row.columns.length) {

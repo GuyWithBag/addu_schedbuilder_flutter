@@ -1,17 +1,9 @@
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
-import '../../domain/models/class_data.dart';
 import '../../domain/models/class_note.dart';
-import '../../domain/models/class_period.dart';
 import '../../domain/models/notification_config.dart';
 import '../../domain/models/saved_schedule.dart';
-import '../../domain/models/schedule_row.dart';
-import '../../domain/models/schedule_table.dart';
-import '../../domain/models/teacher.dart';
 import '../../domain/models/theme_preset.dart';
-import '../../domain/models/time.dart';
-import '../../domain/models/time_slot.dart';
-import '../../domain/models/weekday.dart';
 
 /// Initialize Hive CE with all type adapters
 Future<void> initHive() async {

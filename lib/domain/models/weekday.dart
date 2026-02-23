@@ -26,11 +26,11 @@ enum Weekday {
   @HiveField(6)
   saturday('Sa', 'Saturday', 6);
 
-  const Weekday(this.shortName, this.fullName, this.index);
+  const Weekday(this.shortName, this.fullName, this.dayIndex);
 
   final String shortName;
   final String fullName;
-  final int index;
+  final int dayIndex;
 
   /// Parse weekday from short name (e.g., "M" -> Monday)
   static Weekday? fromShortName(String name) {

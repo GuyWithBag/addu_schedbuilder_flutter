@@ -81,7 +81,7 @@ class ArrangerService {
 
         // Fill cells for each weekday this class occurs
         for (final weekday in period.weekdays) {
-          final columnIndex = weekday.index;
+          final columnIndex = weekday.dayIndex;
 
           if (columnIndex < rows[rowIndex].columns.length) {
             rows[rowIndex].columns[columnIndex] = TimeSlot.classSlot(

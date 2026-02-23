@@ -98,7 +98,7 @@ class ConflictDetectionService {
 /// Helper class to associate a class with a specific period
 class _ClassWithPeriod {
   final ClassData classData;
-  final period;
+  final dynamic period;
 
   _ClassWithPeriod(this.classData, this.period);
 }

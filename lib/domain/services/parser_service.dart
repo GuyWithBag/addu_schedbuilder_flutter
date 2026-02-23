@@ -147,7 +147,7 @@ class ParserService {
       final dayStr = match.group(1)!;
       try {
         final day = Weekday.fromShortName(dayStr);
-        if (!weekdays.contains(day)) {
+        if (day != null && !weekdays.contains(day)) {
           weekdays.add(day);
         }
       } catch (e) {

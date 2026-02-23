@@ -271,7 +271,7 @@ class ExportService {
       // Write event
       buffer.writeln('BEGIN:VEVENT');
       buffer.writeln(
-        'UID:${classData.code}-${weekday.name}-${period.start.hour}${period.start.minute}@schedbuilder.app',
+        'UID:${classData.code}-${weekday.shortName}-${period.start.hour}${period.start.minute}@schedbuilder.app',
       );
       buffer.writeln('DTSTAMP:${_formatICalDateTime(DateTime.now())}');
       buffer.writeln('DTSTART:${_formatICalDateTime(eventStart)}');

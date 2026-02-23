@@ -355,21 +355,52 @@ class InputScreen extends HookWidget {
   Future<void> _exportPNG(BuildContext context, GlobalKey key) async {
     try {
       final bytes = await ExportService.exportToPNG(key);
-      final directory = await getTemporaryDirectory();
-      final file = File('${directory.path}/schedule.png');
-      await file.writeAsBytes(bytes);
 
-      await Share.shareXFiles([
-        XFile(file.path, mimeType: 'image/png'),
-      ], text: 'My Schedule');
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Schedule exported as PNG!'),
-            behavior: SnackBarBehavior.floating,
-          ),
+      // For desktop platforms, save to Downloads folder
+      if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+        final downloadsDir = Directory(
+          '/home/${Platform.environment['USER']}/Downloads',
         );
+        if (!await downloadsDir.exists()) {
+          await downloadsDir.create(recursive: true);
+        }
+
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        final file = File('${downloadsDir.path}/schedule_$timestamp.png');
+        await file.writeAsBytes(bytes);
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Schedule saved to: ${file.path}'),
+              behavior: SnackBarBehavior.floating,
+              action: SnackBarAction(
+                label: 'Open Folder',
+                onPressed: () {
+                  // User can manually open the Downloads folder
+                },
+              ),
+            ),
+          );
+        }
+      } else {
+        // For mobile, use share
+        final directory = await getTemporaryDirectory();
+        final file = File('${directory.path}/schedule.png');
+        await file.writeAsBytes(bytes);
+
+        await Share.shareXFiles([
+          XFile(file.path, mimeType: 'image/png'),
+        ], text: 'My Schedule');
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Schedule exported as PNG!'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (context.mounted) {
@@ -390,29 +421,63 @@ class InputScreen extends HookWidget {
     classColors,
   ) async {
     try {
+      // Convert Map<String, ColorSet> to Map<String, Color>
+      final colorMap = <String, Color>{};
+      classColors.forEach((String key, value) {
+        colorMap[key] = value.primary;
+      });
+
       final bytes = await ExportService.exportToPDF(
         scheduleTable,
-        classColors.map<String, Color>(
-          (key, value) => MapEntry(key, value.primary),
-        ),
+        colorMap,
         'My Schedule',
       );
 
-      final directory = await getTemporaryDirectory();
-      final file = File('${directory.path}/schedule.pdf');
-      await file.writeAsBytes(bytes);
-
-      await Share.shareXFiles([
-        XFile(file.path, mimeType: 'application/pdf'),
-      ], text: 'My Schedule');
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Schedule exported as PDF!'),
-            behavior: SnackBarBehavior.floating,
-          ),
+      // For desktop platforms, save to Downloads folder
+      if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+        final downloadsDir = Directory(
+          '/home/${Platform.environment['USER']}/Downloads',
         );
+        if (!await downloadsDir.exists()) {
+          await downloadsDir.create(recursive: true);
+        }
+
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        final file = File('${downloadsDir.path}/schedule_$timestamp.pdf');
+        await file.writeAsBytes(bytes);
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Schedule saved to: ${file.path}'),
+              behavior: SnackBarBehavior.floating,
+              action: SnackBarAction(
+                label: 'Open Folder',
+                onPressed: () {
+                  // User can manually open the Downloads folder
+                },
+              ),
+            ),
+          );
+        }
+      } else {
+        // For mobile, use share
+        final directory = await getTemporaryDirectory();
+        final file = File('${directory.path}/schedule.pdf');
+        await file.writeAsBytes(bytes);
+
+        await Share.shareXFiles([
+          XFile(file.path, mimeType: 'application/pdf'),
+        ], text: 'My Schedule');
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Schedule exported as PDF!'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (context.mounted) {
@@ -440,21 +505,51 @@ class InputScreen extends HookWidget {
         semesterEnd: semesterEnd,
       );
 
-      final directory = await getTemporaryDirectory();
-      final file = File('${directory.path}/schedule.ics');
-      await file.writeAsString(icsString);
-
-      await Share.shareXFiles([
-        XFile(file.path, mimeType: 'text/calendar'),
-      ], text: 'My Schedule - Import to Calendar');
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Schedule exported as Calendar file (.ics)!'),
-            behavior: SnackBarBehavior.floating,
-          ),
+      // For desktop platforms, save to Downloads folder
+      if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+        final downloadsDir = Directory(
+          '/home/${Platform.environment['USER']}/Downloads',
         );
+        if (!await downloadsDir.exists()) {
+          await downloadsDir.create(recursive: true);
+        }
+
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        final file = File('${downloadsDir.path}/schedule_$timestamp.ics');
+        await file.writeAsString(icsString);
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Calendar file saved to: ${file.path}'),
+              behavior: SnackBarBehavior.floating,
+              action: SnackBarAction(
+                label: 'Open Folder',
+                onPressed: () {
+                  // User can manually open the Downloads folder
+                },
+              ),
+            ),
+          );
+        }
+      } else {
+        // For mobile, use share
+        final directory = await getTemporaryDirectory();
+        final file = File('${directory.path}/schedule.ics');
+        await file.writeAsString(icsString);
+
+        await Share.shareXFiles([
+          XFile(file.path, mimeType: 'text/calendar'),
+        ], text: 'My Schedule - Import to Calendar');
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Schedule exported as Calendar file (.ics)!'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (context.mounted) {
@@ -480,21 +575,52 @@ class InputScreen extends HookWidget {
       );
 
       final jsonString = ExportService.exportToJSON(schedule);
-      final directory = await getTemporaryDirectory();
-      final file = File('${directory.path}/schedule.json');
-      await file.writeAsString(jsonString);
 
-      await Share.shareXFiles([
-        XFile(file.path, mimeType: 'application/json'),
-      ], text: 'My Schedule (JSON)');
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Schedule exported as JSON!'),
-            behavior: SnackBarBehavior.floating,
-          ),
+      // For desktop platforms, save to Downloads folder
+      if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+        final downloadsDir = Directory(
+          '/home/${Platform.environment['USER']}/Downloads',
         );
+        if (!await downloadsDir.exists()) {
+          await downloadsDir.create(recursive: true);
+        }
+
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        final file = File('${downloadsDir.path}/schedule_$timestamp.json');
+        await file.writeAsString(jsonString);
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('JSON file saved to: ${file.path}'),
+              behavior: SnackBarBehavior.floating,
+              action: SnackBarAction(
+                label: 'Open Folder',
+                onPressed: () {
+                  // User can manually open the Downloads folder
+                },
+              ),
+            ),
+          );
+        }
+      } else {
+        // For mobile, use share
+        final directory = await getTemporaryDirectory();
+        final file = File('${directory.path}/schedule.json');
+        await file.writeAsString(jsonString);
+
+        await Share.shareXFiles([
+          XFile(file.path, mimeType: 'application/json'),
+        ], text: 'My Schedule (JSON)');
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Schedule exported as JSON!'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (context.mounted) {

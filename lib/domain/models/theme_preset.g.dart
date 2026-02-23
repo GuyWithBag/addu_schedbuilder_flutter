@@ -8,7 +8,7 @@ part of 'theme_preset.dart';
 
 class ColorDataAdapter extends TypeAdapter<ColorData> {
   @override
-  final typeId = 9;
+  final typeId = 16;
 
   @override
   ColorData read(BinaryReader reader) {

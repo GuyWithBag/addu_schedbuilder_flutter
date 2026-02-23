@@ -6,7 +6,7 @@ part 'theme_preset.g.dart';
 
 /// Simple color storage (RGB values)
 @freezed
-@HiveType(typeId: 9)
+@HiveType(typeId: 16)
 class ColorData with _$ColorData {
   const factory ColorData({
     @HiveField(0) required int red,

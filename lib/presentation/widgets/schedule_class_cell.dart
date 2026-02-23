@@ -91,7 +91,7 @@ class ScheduleClassCell extends StatelessWidget {
                 Text(
                   classData.schedule.first.room,
                   style: theme.textTheme.labelSmall?.copyWith(
-                    color: textColor.withOpacity(0.8),
+                    color: textColor.withValues(alpha: 0.8),
                     fontSize: fontSize - 2,
                     height: 1.0,
                   ),

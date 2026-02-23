@@ -12,8 +12,9 @@ class SavedSchedulesScreen extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final savedSchedulesProvider = context.watch<SavedSchedulesProvider>();
-    final schedules = savedSchedulesProvider.schedules;
+    final allSchedules = savedSchedulesProvider.schedules;
     final isLoading = savedSchedulesProvider.isLoading;
+    final selectedSemester = useState<String?>(null);
 
     // Load schedules on first build
     useEffect(() {
@@ -23,39 +24,104 @@ class SavedSchedulesScreen extends HookWidget {
       return null;
     }, []);
 
+    // Filter schedules by semester
+    final schedules =
+        selectedSemester.value == null || selectedSemester.value!.isEmpty
+        ? allSchedules
+        : allSchedules
+              .where((s) => s.semester == selectedSemester.value)
+              .toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Saved Schedules'),
         actions: [
-          if (schedules.isNotEmpty)
+          if (allSchedules.isNotEmpty)
             PopupMenuButton<String>(
-              icon: const Icon(Icons.filter_list),
+              icon: Icon(
+                selectedSemester.value == null ||
+                        selectedSemester.value!.isEmpty
+                    ? Icons.filter_list
+                    : Icons.filter_list_alt,
+              ),
               tooltip: 'Filter by semester',
               onSelected: (semester) {
-                // TODO: Implement semester filtering
+                selectedSemester.value = semester.isEmpty ? null : semester;
               },
               itemBuilder: (context) {
                 final semesters = savedSchedulesProvider.getUniqueSemesters();
                 return [
-                  const PopupMenuItem(value: '', child: Text('All Semesters')),
+                  PopupMenuItem(
+                    value: '',
+                    child: Row(
+                      children: [
+                        if (selectedSemester.value == null ||
+                            selectedSemester.value!.isEmpty)
+                          const Icon(Icons.check, size: 20),
+                        if (selectedSemester.value == null ||
+                            selectedSemester.value!.isEmpty)
+                          const SizedBox(width: 8),
+                        const Text('All Semesters'),
+                      ],
+                    ),
+                  ),
                   ...semesters.map(
-                    (semester) =>
-                        PopupMenuItem(value: semester, child: Text(semester)),
+                    (semester) => PopupMenuItem(
+                      value: semester,
+                      child: Row(
+                        children: [
+                          if (selectedSemester.value == semester)
+                            const Icon(Icons.check, size: 20),
+                          if (selectedSemester.value == semester)
+                            const SizedBox(width: 8),
+                          Text(semester),
+                        ],
+                      ),
+                    ),
                   ),
                 ];
               },
             ),
         ],
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : schedules.isEmpty
-          ? _buildEmptyState(context)
-          : _buildSchedulesList(context, schedules),
+      body: Column(
+        children: [
+          // Filter chip
+          if (selectedSemester.value != null &&
+              selectedSemester.value!.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Chip(
+                    label: Text('Semester: ${selectedSemester.value}'),
+                    onDeleted: () => selectedSemester.value = null,
+                    deleteIcon: const Icon(Icons.close, size: 18),
+                  ),
+                  const Spacer(),
+                  Text(
+                    '${schedules.length} of ${allSchedules.length}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+          // Content
+          Expanded(
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : schedules.isEmpty
+                ? _buildEmptyState(context, selectedSemester.value)
+                : _buildSchedulesList(context, schedules),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _buildEmptyState(BuildContext context, String? filterSemester) {
+    final isFiltered = filterSemester != null && filterSemester.isNotEmpty;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -67,14 +133,18 @@ class SavedSchedulesScreen extends HookWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'No saved schedules',
+            isFiltered
+                ? 'No schedules for this semester'
+                : 'No saved schedules',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Parse and save a schedule to see it here',
+            isFiltered
+                ? 'Try selecting a different semester'
+                : 'Parse and save a schedule to see it here',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),

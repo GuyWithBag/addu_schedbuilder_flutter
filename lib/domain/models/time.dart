@@ -1,20 +1,17 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:hive_ce/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-part 'time.freezed.dart';
 part 'time.g.dart';
 
-@freezed
-@HiveType(typeId: 0)
-class Time with _$Time {
-  const Time._();
+@JsonSerializable()
+class Time {
+  final int hour;
+  final int minute;
 
-  const factory Time({
-    @HiveField(0) required int hour,
-    @HiveField(1) required int minute,
-  }) = _Time;
+  const Time({required this.hour, required this.minute});
 
+  /// JSON serialization
   factory Time.fromJson(Map<String, dynamic> json) => _$TimeFromJson(json);
+  Map<String, dynamic> toJson() => _$TimeToJson(this);
 
   /// Convert time to total minutes since midnight
   int toMinutes() => hour * 60 + minute;
@@ -44,4 +41,24 @@ class Time with _$Time {
 
   /// Calculate duration in minutes between two times
   int durationUntil(Time other) => other.toMinutes() - toMinutes();
+
+  /// CopyWith method for immutability
+  Time copyWith({int? hour, int? minute}) {
+    return Time(hour: hour ?? this.hour, minute: minute ?? this.minute);
+  }
+
+  /// Equality and hashCode
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Time &&
+          runtimeType == other.runtimeType &&
+          hour == other.hour &&
+          minute == other.minute;
+
+  @override
+  int get hashCode => hour.hashCode ^ minute.hashCode;
+
+  @override
+  String toString() => 'Time(hour: $hour, minute: $minute)';
 }

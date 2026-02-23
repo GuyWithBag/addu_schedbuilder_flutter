@@ -3,19 +3,7 @@
 // Check in to version control
 
 import 'package:hive_ce/hive.dart';
-import 'package:addu_schedbuilder_flutter/domain/models/class_data.dart';
-import 'package:addu_schedbuilder_flutter/domain/models/class_note.dart';
-import 'package:addu_schedbuilder_flutter/domain/models/class_period.dart';
-import 'package:addu_schedbuilder_flutter/domain/models/note_type.dart';
-import 'package:addu_schedbuilder_flutter/domain/models/notification_config.dart';
-import 'package:addu_schedbuilder_flutter/domain/models/saved_schedule.dart';
-import 'package:addu_schedbuilder_flutter/domain/models/schedule_row.dart';
-import 'package:addu_schedbuilder_flutter/domain/models/schedule_table.dart';
-import 'package:addu_schedbuilder_flutter/domain/models/teacher.dart';
-import 'package:addu_schedbuilder_flutter/domain/models/theme_preset.dart';
-import 'package:addu_schedbuilder_flutter/domain/models/time.dart';
-import 'package:addu_schedbuilder_flutter/domain/models/time_slot.dart';
-import 'package:addu_schedbuilder_flutter/domain/models/weekday.dart';
+import 'package:addu_schedbuilder_flutter/hive_adapters.dart';
 
 extension HiveRegistrar on HiveInterface {
   void registerAdapters() {

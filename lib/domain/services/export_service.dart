@@ -9,6 +9,7 @@ import '../models/saved_schedule.dart';
 import '../models/schedule_table.dart';
 import '../models/weekday.dart';
 import '../models/class_data.dart';
+import '../models/time_slot.dart';
 
 /// Service for exporting schedules to various formats
 class ExportService {
@@ -129,23 +130,19 @@ class ExportService {
                 if (slot == null) {
                   return _pdfCell('');
                 }
-                return slot.when(
-                  classSlot: (classData, rowspan, colspan, duration) {
-                    final room = classData.rooms.isNotEmpty
-                        ? classData.rooms.first
-                        : '';
-                    return _pdfCell(
-                      '${classData.code}\n$room',
-                      bgColor: PdfColors.blue100,
-                    );
-                  },
-                  barSlot: (label, rowspan, colspan) {
-                    return _pdfCell(label, bgColor: PdfColors.orange100);
-                  },
-                  emptySlot: (rowspan, colspan) {
-                    return _pdfCell('');
-                  },
-                );
+                if (slot is ClassSlot) {
+                  final room = slot.classData.rooms.isNotEmpty
+                      ? slot.classData.rooms.first
+                      : '';
+                  return _pdfCell(
+                    '${slot.classData.code}\n$room',
+                    bgColor: PdfColors.blue100,
+                  );
+                } else if (slot is BarSlot) {
+                  return _pdfCell(slot.label, bgColor: PdfColors.orange100);
+                } else {
+                  return _pdfCell('');
+                }
               }).toList(),
             ],
           );

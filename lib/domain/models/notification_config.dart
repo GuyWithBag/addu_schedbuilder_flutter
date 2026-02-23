@@ -1,24 +1,64 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:hive_ce/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'weekday.dart';
 
-part 'notification_config.freezed.dart';
 part 'notification_config.g.dart';
 
-@freezed
-@HiveType(typeId: 13)
-class NotificationConfig with _$NotificationConfig {
-  const NotificationConfig._();
+@JsonSerializable()
+class NotificationConfig {
+  final bool enabled;
+  final int minutesBefore;
+  final Set<Weekday> activeDays;
 
-  const factory NotificationConfig({
-    @HiveField(0) @Default(false) bool enabled,
-    @HiveField(1) @Default(10) int minutesBefore,
-    @HiveField(2) @Default({}) Set<Weekday> activeDays,
-  }) = _NotificationConfig;
+  const NotificationConfig({
+    this.enabled = false,
+    this.minutesBefore = 10,
+    this.activeDays = const {},
+  });
 
+  /// JSON serialization
   factory NotificationConfig.fromJson(Map<String, dynamic> json) =>
       _$NotificationConfigFromJson(json);
+  Map<String, dynamic> toJson() => _$NotificationConfigToJson(this);
 
   /// Check if notifications are enabled for a specific weekday
   bool isActiveOn(Weekday weekday) => enabled && activeDays.contains(weekday);
+
+  /// CopyWith method for immutability
+  NotificationConfig copyWith({
+    bool? enabled,
+    int? minutesBefore,
+    Set<Weekday>? activeDays,
+  }) {
+    return NotificationConfig(
+      enabled: enabled ?? this.enabled,
+      minutesBefore: minutesBefore ?? this.minutesBefore,
+      activeDays: activeDays ?? this.activeDays,
+    );
+  }
+
+  /// Equality and hashCode
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NotificationConfig &&
+          runtimeType == other.runtimeType &&
+          enabled == other.enabled &&
+          minutesBefore == other.minutesBefore &&
+          _setEquals(activeDays, other.activeDays);
+
+  @override
+  int get hashCode =>
+      enabled.hashCode ^
+      minutesBefore.hashCode ^
+      activeDays.fold(0, (prev, element) => prev ^ element.hashCode);
+
+  @override
+  String toString() =>
+      'NotificationConfig(enabled: $enabled, minutesBefore: $minutesBefore, activeDays: $activeDays)';
+
+  static bool _setEquals<T>(Set<T>? a, Set<T>? b) {
+    if (a == null) return b == null;
+    if (b == null || a.length != b.length) return false;
+    return a.containsAll(b);
+  }
 }

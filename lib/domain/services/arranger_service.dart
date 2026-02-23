@@ -80,7 +80,7 @@ class ArrangerService {
           final columnIndex = weekday.dayIndex;
 
           if (columnIndex < columnsList[rowIndex].length) {
-            columnsList[rowIndex][columnIndex] = TimeSlot.classSlot(
+            columnsList[rowIndex][columnIndex] = ClassSlot(
               classData: classData,
               rowspan: rowspan,
               colspan: 1,
@@ -101,7 +101,7 @@ class ArrangerService {
 
       // Fill nulls with empty slots
       for (var j = 0; j < columns.length; j++) {
-        columns[j] ??= const TimeSlot.emptySlot();
+        columns[j] ??= const EmptySlot();
       }
 
       rows.add(ScheduleRow(time: time, duration: duration, columns: columns));
@@ -128,7 +128,7 @@ class ArrangerService {
         // Convert empty slots to bar slots (lunch)
         final lunchColumns = List<TimeSlot>.filled(
           7,
-          const TimeSlot.barSlot(label: 'LUNCH'),
+          const BarSlot(label: 'LUNCH'),
         );
 
         updatedRows.add(row.copyWith(columns: lunchColumns));

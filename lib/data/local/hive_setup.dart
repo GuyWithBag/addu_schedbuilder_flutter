@@ -1,6 +1,6 @@
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:addu_schedbuilder_flutter/hive_registrar.g.dart';
+import '../../hive_adapters.dart';
 import '../../domain/models/class_note.dart';
 import '../../domain/models/notification_config.dart';
 import '../../domain/models/saved_schedule.dart';
@@ -14,8 +14,23 @@ Future<void> initHive() async {
   // Initialize Hive with the app directory
   await Hive.initFlutter(appDir.path);
 
-  // Register all type adapters using the generated extension
-  Hive.registerAdapters();
+  // Register all type adapters manually from generated adapters
+  Hive.registerAdapter(TimeAdapter());
+  Hive.registerAdapter(WeekdayAdapter());
+  Hive.registerAdapter(ClassPeriodAdapter());
+  Hive.registerAdapter(TeacherAdapter());
+  Hive.registerAdapter(ClassDataAdapter());
+  Hive.registerAdapter(ClassSlotAdapter());
+  Hive.registerAdapter(ScheduleRowAdapter());
+  Hive.registerAdapter(ScheduleTableAdapter());
+  Hive.registerAdapter(SavedScheduleAdapter());
+  Hive.registerAdapter(ThemePresetAdapter());
+  Hive.registerAdapter(ClassNoteAdapter());
+  Hive.registerAdapter(NoteTypeAdapter());
+  Hive.registerAdapter(NotificationConfigAdapter());
+  Hive.registerAdapter(BarSlotAdapter());
+  Hive.registerAdapter(EmptySlotAdapter());
+  Hive.registerAdapter(ColorDataAdapter());
 
   // Open boxes for each entity type
   await Hive.openBox<SavedSchedule>('schedules');

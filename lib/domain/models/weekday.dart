@@ -1,29 +1,11 @@
-import 'package:hive_ce/hive.dart';
-
-part 'weekday.g.dart';
-
 /// Enum for days of the week
-@HiveType(typeId: 1)
 enum Weekday {
-  @HiveField(0)
   sunday('S', 'Sunday', 0),
-
-  @HiveField(1)
   monday('M', 'Monday', 1),
-
-  @HiveField(2)
   tuesday('T', 'Tuesday', 2),
-
-  @HiveField(3)
   wednesday('W', 'Wednesday', 3),
-
-  @HiveField(4)
   thursday('Th', 'Thursday', 4),
-
-  @HiveField(5)
   friday('F', 'Friday', 5),
-
-  @HiveField(6)
   saturday('Sa', 'Saturday', 6);
 
   const Weekday(this.shortName, this.fullName, this.dayIndex);

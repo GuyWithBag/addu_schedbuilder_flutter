@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
 import '../../domain/models/schedule_table.dart';
 import '../../domain/models/schedule_row.dart';
+import '../../domain/models/time_slot.dart';
 import '../../domain/models/weekday.dart';
 import '../../domain/services/color_service.dart';
 import '../providers/display_config_provider.dart';
@@ -153,35 +154,32 @@ class ScheduleTableWidget extends HookWidget {
             );
           }
 
-          return slot.when(
-            classSlot: (classData, rowspan, colspan, duration) {
-              final colorSet = classColors[classData.subject];
-              return SizedBox(
-                width: 100.0 * colspan,
-                height: 60.0 * rowspan,
-                child: ScheduleClassCell(
-                  classData: classData,
-                  rowspan: rowspan,
-                  duration: duration,
-                  colorSet: colorSet,
-                ),
-              );
-            },
-            barSlot: (label, rowspan, colspan) {
-              return SizedBox(
-                width: 100.0 * colspan,
-                height: 60.0 * rowspan,
-                child: ScheduleBarCell(label: label),
-              );
-            },
-            emptySlot: (rowspan, colspan) {
-              return SizedBox(
-                width: 100.0 * colspan,
-                height: 60.0 * rowspan,
-                child: const ScheduleEmptyCell(),
-              );
-            },
-          );
+          if (slot is ClassSlot) {
+            final colorSet = classColors[slot.classData.subject];
+            return SizedBox(
+              width: 100.0 * slot.colspan,
+              height: 60.0 * slot.rowspan,
+              child: ScheduleClassCell(
+                classData: slot.classData,
+                rowspan: slot.rowspan,
+                duration: slot.duration,
+                colorSet: colorSet,
+              ),
+            );
+          } else if (slot is BarSlot) {
+            return SizedBox(
+              width: 100.0 * slot.colspan,
+              height: 60.0 * slot.rowspan,
+              child: ScheduleBarCell(label: slot.label),
+            );
+          } else {
+            final emptySlot = slot as EmptySlot;
+            return SizedBox(
+              width: 100.0 * emptySlot.colspan,
+              height: 60.0 * emptySlot.rowspan,
+              child: const ScheduleEmptyCell(),
+            );
+          }
         }),
       ],
     );

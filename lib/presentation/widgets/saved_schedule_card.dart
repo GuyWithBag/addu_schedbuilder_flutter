@@ -35,7 +35,7 @@ class SavedScheduleCard extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: Text(
+                    child: SelectableText(
                       schedule.name,
                       style: theme.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
@@ -84,7 +84,7 @@ class SavedScheduleCard extends StatelessWidget {
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 4),
-                  Text(
+                  SelectableText(
                     '${classes.length} classes',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
@@ -97,7 +97,7 @@ class SavedScheduleCard extends StatelessWidget {
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 4),
-                  Text(
+                  SelectableText(
                     dateFormat.format(schedule.createdAt),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,

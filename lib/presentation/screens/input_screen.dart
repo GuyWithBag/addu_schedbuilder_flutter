@@ -8,6 +8,11 @@ import '../widgets/save_schedule_dialog.dart';
 import '../widgets/schedule_table_widget.dart';
 import '../widgets/statistics_widget.dart';
 import '../widgets/conflict_indicator_widget.dart';
+import '../../domain/services/export_service.dart';
+import '../../domain/models/saved_schedule.dart';
+import 'package:share_plus/share_plus.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 /// Screen for inputting and parsing schedule text
 class InputScreen extends HookWidget {
@@ -17,6 +22,7 @@ class InputScreen extends HookWidget {
   Widget build(BuildContext context) {
     final scheduleProvider = context.watch<ScheduleProvider>();
     final textController = useTextEditingController();
+    final repaintBoundaryKey = useMemoized(() => GlobalKey());
 
     return Scaffold(
       appBar: AppBar(
@@ -75,14 +81,24 @@ class InputScreen extends HookWidget {
             const SizedBox(height: 16),
 
             // Results
-            Expanded(child: _buildResults(context, scheduleProvider)),
+            Expanded(
+              child: _buildResults(
+                context,
+                scheduleProvider,
+                repaintBoundaryKey,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildResults(BuildContext context, ScheduleProvider provider) {
+  Widget _buildResults(
+    BuildContext context,
+    ScheduleProvider provider,
+    GlobalKey repaintBoundaryKey,
+  ) {
     final parseResult = provider.parseResult;
     final scheduleTable = provider.scheduleTable;
 
@@ -166,6 +182,21 @@ class InputScreen extends HookWidget {
                     icon: const Icon(Icons.save),
                     label: const Text('Save'),
                   ),
+                  const SizedBox(width: 8),
+                  FilledButton.tonalIcon(
+                    onPressed: () {
+                      final displayConfig = context
+                          .read<DisplayConfigProvider>();
+                      _showExportOptions(
+                        context,
+                        scheduleTable,
+                        repaintBoundaryKey,
+                        displayConfig.classColors,
+                      );
+                    },
+                    icon: const Icon(Icons.share),
+                    label: const Text('Export'),
+                  ),
                 ],
               ),
             ),
@@ -182,7 +213,10 @@ class InputScreen extends HookWidget {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 16),
-                  ScheduleTableWidget(table: scheduleTable),
+                  RepaintBoundary(
+                    key: repaintBoundaryKey,
+                    child: ScheduleTableWidget(table: scheduleTable),
+                  ),
                 ],
               ),
             ),
@@ -248,5 +282,178 @@ class InputScreen extends HookWidget {
         },
       ),
     );
+  }
+
+  void _showExportOptions(
+    BuildContext context,
+    scheduleTable,
+    GlobalKey repaintBoundaryKey,
+    classColors,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Export Schedule',
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                FilledButton.tonalIcon(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await _exportPNG(context, repaintBoundaryKey);
+                  },
+                  icon: const Icon(Icons.image),
+                  label: const Text('PNG'),
+                ),
+                FilledButton.tonalIcon(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await _exportPDF(context, scheduleTable, classColors);
+                  },
+                  icon: const Icon(Icons.picture_as_pdf),
+                  label: const Text('PDF'),
+                ),
+                FilledButton.tonalIcon(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await _exportJSON(context, scheduleTable);
+                  },
+                  icon: const Icon(Icons.code),
+                  label: const Text('JSON'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _exportPNG(BuildContext context, GlobalKey key) async {
+    try {
+      final bytes = await ExportService.exportToPNG(key);
+      final directory = await getTemporaryDirectory();
+      final file = File('${directory.path}/schedule.png');
+      await file.writeAsBytes(bytes);
+
+      await Share.shareXFiles([
+        XFile(file.path, mimeType: 'image/png'),
+      ], text: 'My Schedule');
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Schedule exported as PNG!'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error exporting PNG: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _exportPDF(
+    BuildContext context,
+    scheduleTable,
+    classColors,
+  ) async {
+    try {
+      final bytes = await ExportService.exportToPDF(
+        scheduleTable,
+        classColors.map<String, Color>(
+          (key, value) => MapEntry(key, value.primary),
+        ),
+        'My Schedule',
+      );
+
+      final directory = await getTemporaryDirectory();
+      final file = File('${directory.path}/schedule.pdf');
+      await file.writeAsBytes(bytes);
+
+      await Share.shareXFiles([
+        XFile(file.path, mimeType: 'application/pdf'),
+      ], text: 'My Schedule');
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Schedule exported as PDF!'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error exporting PDF: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _exportJSON(BuildContext context, scheduleTable) async {
+    try {
+      // Create a temporary SavedSchedule for export
+      final schedule = SavedSchedule(
+        id: 'temp',
+        name: 'Exported Schedule',
+        createdAt: DateTime.now(),
+        table: scheduleTable,
+      );
+
+      final jsonString = ExportService.exportToJSON(schedule);
+      final directory = await getTemporaryDirectory();
+      final file = File('${directory.path}/schedule.json');
+      await file.writeAsString(jsonString);
+
+      await Share.shareXFiles([
+        XFile(file.path, mimeType: 'application/json'),
+      ], text: 'My Schedule (JSON)');
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Schedule exported as JSON!'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error exporting JSON: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 }

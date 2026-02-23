@@ -54,49 +54,53 @@ class ScheduleClassCell extends StatelessWidget {
           border: Border.all(color: theme.dividerColor),
           borderRadius: BorderRadius.circular(4),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              classData.code,
-              style: theme.textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: textColor,
-                fontSize: fontSize + 1,
-                height: 1.0,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (duration >= 45) ...[
-              const SizedBox(height: 1),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
               Text(
-                classData.subject,
-                style: theme.textTheme.bodySmall?.copyWith(
+                classData.code,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
                   color: textColor,
-                  fontSize: fontSize - 1,
+                  fontSize: fontSize + 1,
                   height: 1.0,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-            ],
-            if (duration >= 75 && classData.schedule.isNotEmpty) ...[
-              const SizedBox(height: 1),
-              Text(
-                classData.schedule.first.room,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: textColor.withOpacity(0.8),
-                  fontSize: fontSize - 2,
-                  height: 1.0,
+              if (duration >= 45) ...[
+                const SizedBox(height: 1),
+                Text(
+                  classData.subject,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: textColor,
+                    fontSize: fontSize - 1,
+                    height: 1.0,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+              ],
+              if (duration >= 75 && classData.schedule.isNotEmpty) ...[
+                const SizedBox(height: 1),
+                Text(
+                  classData.schedule.first.room,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: textColor.withOpacity(0.8),
+                    fontSize: fontSize - 2,
+                    height: 1.0,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

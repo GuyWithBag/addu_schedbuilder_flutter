@@ -13,6 +13,7 @@ import '../../domain/models/saved_schedule.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'home_screen.dart';
 
 /// Screen for inputting and parsing schedule text
 class InputScreen extends HookWidget {
@@ -262,7 +263,8 @@ class InputScreen extends HookWidget {
                   action: SnackBarAction(
                     label: 'View',
                     onPressed: () {
-                      // TODO: Navigate to saved schedules screen
+                      // Navigate to saved schedules screen (tab index 1)
+                      HomeScreen.navigatorKey.currentState?.navigateToTab(1);
                     },
                   ),
                 ),

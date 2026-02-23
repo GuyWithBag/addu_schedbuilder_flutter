@@ -9,10 +9,32 @@ import 'saved_schedules_screen.dart';
 class HomeScreen extends HookWidget {
   const HomeScreen({super.key});
 
+  static final navigatorKey = GlobalKey<_HomeScreenNavigatorState>();
+
   @override
   Widget build(BuildContext context) {
-    final currentIndex = useState(0);
+    return _HomeScreenNavigator(key: HomeScreen.navigatorKey);
+  }
+}
 
+class _HomeScreenNavigator extends StatefulWidget {
+  const _HomeScreenNavigator({super.key});
+
+  @override
+  State<_HomeScreenNavigator> createState() => _HomeScreenNavigatorState();
+}
+
+class _HomeScreenNavigatorState extends State<_HomeScreenNavigator> {
+  int currentIndex = 0;
+
+  void navigateToTab(int index) {
+    setState(() {
+      currentIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final screens = [
       const InputScreen(),
       const SavedSchedulesScreen(),
@@ -20,11 +42,11 @@ class HomeScreen extends HookWidget {
     ];
 
     return Scaffold(
-      body: IndexedStack(index: currentIndex.value, children: screens),
+      body: IndexedStack(index: currentIndex, children: screens),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: currentIndex.value,
+        selectedIndex: currentIndex,
         onDestinationSelected: (index) {
-          currentIndex.value = index;
+          navigateToTab(index);
         },
         destinations: const [
           NavigationDestination(

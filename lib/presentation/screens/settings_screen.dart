@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
 import '../providers/display_config_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import '../../domain/models/time.dart';
 
 /// Settings screen for app configuration
 class SettingsScreen extends HookWidget {
@@ -38,6 +39,36 @@ class SettingsScreen extends HookWidget {
             onChanged: (value) {
               displayConfig.toggle24HourFormat();
             },
+          ),
+
+          const Divider(),
+
+          // Schedule Table Section
+          _buildSectionHeader(context, 'Schedule Table'),
+          ListTile(
+            leading: const Icon(Icons.schedule),
+            title: const Text('Time Range'),
+            subtitle: Text(
+              displayConfig.customStartTime != null
+                  ? '${displayConfig.customStartTime!.format(displayConfig.is24HourFormat)} - ${displayConfig.customEndTime!.format(displayConfig.is24HourFormat)}'
+                  : 'Auto-detect from schedule',
+            ),
+            trailing: displayConfig.customStartTime != null
+                ? IconButton(
+                    icon: const Icon(Icons.clear),
+                    tooltip: 'Reset to auto-detect',
+                    onPressed: () {
+                      displayConfig.clearTimeRange();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Time range reset to auto-detect'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                  )
+                : null,
+            onTap: () => _showTimeRangePicker(context, displayConfig),
           ),
 
           const Divider(),
@@ -164,6 +195,132 @@ class SettingsScreen extends HookWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showTimeRangePicker(
+    BuildContext context,
+    DisplayConfigProvider displayConfig,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) =>
+          _TimeRangePickerDialog(displayConfig: displayConfig),
+    );
+  }
+}
+
+/// Time range picker dialog
+class _TimeRangePickerDialog extends StatefulWidget {
+  final DisplayConfigProvider displayConfig;
+
+  const _TimeRangePickerDialog({required this.displayConfig});
+
+  @override
+  State<_TimeRangePickerDialog> createState() => _TimeRangePickerDialogState();
+}
+
+class _TimeRangePickerDialogState extends State<_TimeRangePickerDialog> {
+  late TimeOfDay _startTime;
+  late TimeOfDay _endTime;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with current custom times or defaults
+    _startTime = widget.displayConfig.customStartTime != null
+        ? TimeOfDay(
+            hour: widget.displayConfig.customStartTime!.hour,
+            minute: widget.displayConfig.customStartTime!.minute,
+          )
+        : const TimeOfDay(hour: 7, minute: 0); // 7:00 AM default
+
+    _endTime = widget.displayConfig.customEndTime != null
+        ? TimeOfDay(
+            hour: widget.displayConfig.customEndTime!.hour,
+            minute: widget.displayConfig.customEndTime!.minute,
+          )
+        : const TimeOfDay(hour: 21, minute: 0); // 9:00 PM default
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Set Time Range'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('Set custom start and end times for your schedule table.'),
+          const SizedBox(height: 24),
+          ListTile(
+            leading: const Icon(Icons.schedule),
+            title: const Text('Start Time'),
+            subtitle: Text(_startTime.format(context)),
+            onTap: () async {
+              final time = await showTimePicker(
+                context: context,
+                initialTime: _startTime,
+              );
+              if (time != null) {
+                setState(() => _startTime = time);
+              }
+            },
+          ),
+          const SizedBox(height: 8),
+          ListTile(
+            leading: const Icon(Icons.schedule),
+            title: const Text('End Time'),
+            subtitle: Text(_endTime.format(context)),
+            onTap: () async {
+              final time = await showTimePicker(
+                context: context,
+                initialTime: _endTime,
+              );
+              if (time != null) {
+                setState(() => _endTime = time);
+              }
+            },
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () {
+            // Validate that start time is before end time
+            final startMinutes = _startTime.hour * 60 + _startTime.minute;
+            final endMinutes = _endTime.hour * 60 + _endTime.minute;
+
+            if (startMinutes >= endMinutes) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Start time must be before end time'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+              return;
+            }
+
+            // Apply the time range
+            widget.displayConfig.setTimeRange(
+              Time(hour: _startTime.hour, minute: _startTime.minute),
+              Time(hour: _endTime.hour, minute: _endTime.minute),
+            );
+
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Time range updated'),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          },
+          child: const Text('Apply'),
+        ),
+      ],
     );
   }
 }

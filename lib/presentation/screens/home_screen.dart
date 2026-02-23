@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/display_config_provider.dart';
 import 'input_screen.dart';
 import 'saved_schedules_screen.dart';
+import 'settings_screen.dart';
 
 /// Main home screen with bottom navigation
 class HomeScreen extends HookWidget {
@@ -38,7 +39,7 @@ class _HomeScreenNavigatorState extends State<_HomeScreenNavigator> {
     final screens = [
       const InputScreen(),
       const SavedSchedulesScreen(),
-      const Center(child: Text('Settings - Coming Soon')),
+      const SettingsScreen(),
     ];
 
     return Scaffold(

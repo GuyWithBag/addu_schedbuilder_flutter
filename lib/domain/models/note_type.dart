@@ -3,7 +3,7 @@ import 'package:hive_ce/hive.dart';
 part 'note_type.g.dart';
 
 /// Type of class note
-@HiveType(typeId: 11)
+@HiveType(typeId: 12)
 enum NoteType {
   @HiveField(0)
   general('General', 'General note'),

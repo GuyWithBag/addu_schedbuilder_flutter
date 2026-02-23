@@ -8,7 +8,7 @@ part of 'note_type.dart';
 
 class NoteTypeAdapter extends TypeAdapter<NoteType> {
   @override
-  final typeId = 11;
+  final typeId = 12;
 
   @override
   NoteType read(BinaryReader reader) {

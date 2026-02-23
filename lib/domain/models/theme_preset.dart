@@ -21,7 +21,7 @@ class ColorData with _$ColorData {
 
 /// Theme preset for a schedule
 @freezed
-@HiveType(typeId: 10)
+@HiveType(typeId: 9)
 class ThemePreset with _$ThemePreset {
   const ThemePreset._();
 

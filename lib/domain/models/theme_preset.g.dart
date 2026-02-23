@@ -51,7 +51,7 @@ class ColorDataAdapter extends TypeAdapter<ColorData> {
 
 class ThemePresetAdapter extends TypeAdapter<ThemePreset> {
   @override
-  final typeId = 10;
+  final typeId = 9;
 
   @override
   ThemePreset read(BinaryReader reader) {

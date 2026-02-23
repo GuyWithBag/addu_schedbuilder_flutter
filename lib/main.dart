@@ -6,6 +6,7 @@ import 'data/repositories/schedule_repository_impl.dart';
 import 'presentation/providers/display_config_provider.dart';
 import 'presentation/providers/saved_schedules_provider.dart';
 import 'presentation/providers/schedule_provider.dart';
+import 'presentation/widgets/schedule_table_widget.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -185,69 +186,52 @@ class HomeScreen extends HookWidget {
       return const Center(child: Text('No schedule to display'));
     }
 
-    // Success! Show parsed classes
+    // Success! Show schedule table
     final classes = scheduleTable.getAllClasses();
 
     return SingleChildScrollView(
-      child: Card(
-        color: Colors.green.shade50,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Success banner
+          Card(
+            color: Colors.green.shade50,
+            margin: const EdgeInsets.only(bottom: 16),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
                 children: [
-                  Icon(Icons.check_circle, color: Colors.green),
-                  SizedBox(width: 8),
+                  const Icon(Icons.check_circle, color: Colors.green),
+                  const SizedBox(width: 8),
                   Text(
-                    'Parsing Successful!',
-                    style: TextStyle(
+                    'Successfully parsed ${classes.length} classes!',
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.green,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              Text(
-                'Found ${classes.length} classes:',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              ...classes.map(
-                (classData) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${classData.code} - ${classData.subject}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text('Title: ${classData.title}'),
-                      if (classData.teacher != null)
-                        Text('Teacher: ${classData.teacher!.fullName}'),
-                      Text('Units: ${classData.units}'),
-                      Text('Schedule: ${classData.schedule.length} period(s)'),
-                      ...classData.schedule.map(
-                        (period) => Padding(
-                          padding: const EdgeInsets.only(left: 16, top: 4),
-                          child: Text(
-                            '${period.start.format(false)} - ${period.end.format(false)} | ${period.room} | ${period.weekdays.map((d) => d.shortName).join(" ")}',
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const Divider(),
-              Text('Schedule Grid: ${scheduleTable.rows.length} time slots'),
-            ],
+            ),
           ),
-        ),
+          // Schedule Table
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Weekly Schedule',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 16),
+                  ScheduleTableWidget(table: scheduleTable),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
-}

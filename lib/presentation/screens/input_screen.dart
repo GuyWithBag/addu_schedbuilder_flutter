@@ -6,6 +6,7 @@ import '../providers/saved_schedules_provider.dart';
 import '../providers/schedule_provider.dart';
 import '../widgets/save_schedule_dialog.dart';
 import '../widgets/schedule_table_widget.dart';
+import '../widgets/statistics_widget.dart';
 
 /// Screen for inputting and parsing schedule text
 class InputScreen extends HookWidget {
@@ -185,6 +186,10 @@ class InputScreen extends HookWidget {
               ),
             ),
           ),
+
+          // Statistics
+          const SizedBox(height: 16),
+          StatisticsWidget(table: scheduleTable),
         ],
       ),
     );

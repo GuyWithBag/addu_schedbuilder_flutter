@@ -38,13 +38,14 @@ class SavedSchedulesProvider extends ChangeNotifier {
     }
   }
 
-  /// Save a new schedule
+  /// Save a new schedule (or restore an existing one with specific id)
   Future<void> saveSchedule(
     String name,
     ScheduleTable table,
     String? semester,
-    Map<String, ColorSet> classColors,
-  ) async {
+    Map<String, ColorSet> classColors, {
+    String? id, // Optional: for restoring deleted schedules with same ID
+  }) async {
     // Convert ColorSet to ColorData for storage
     final colorDataMap = <String, ColorData>{};
     for (final entry in classColors.entries) {
@@ -65,7 +66,7 @@ class SavedSchedulesProvider extends ChangeNotifier {
     );
 
     final schedule = SavedSchedule(
-      id: const Uuid().v4(),
+      id: id ?? const Uuid().v4(), // Use provided ID or generate new one
       name: name,
       createdAt: DateTime.now(),
       table: table,

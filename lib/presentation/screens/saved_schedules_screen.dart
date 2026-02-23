@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/saved_schedules_provider.dart';
 import '../providers/schedule_provider.dart';
 import '../widgets/saved_schedule_card.dart';
+import '../../domain/services/color_service.dart';
 
 /// Screen displaying all saved schedules
 class SavedSchedulesScreen extends HookWidget {
@@ -196,9 +197,7 @@ class SavedSchedulesScreen extends HookWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Schedule'),
-        content: Text(
-          'Are you sure you want to delete "${schedule.name}"? This action cannot be undone.',
-        ),
+        content: Text('Are you sure you want to delete "${schedule.name}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -214,6 +213,9 @@ class SavedSchedulesScreen extends HookWidget {
     );
 
     if (confirmed == true && context.mounted) {
+      // Store the schedule for undo functionality
+      final deletedSchedule = schedule;
+
       try {
         await context.read<SavedSchedulesProvider>().deleteSchedule(
           schedule.id,
@@ -224,10 +226,64 @@ class SavedSchedulesScreen extends HookWidget {
             SnackBar(
               content: Text('Deleted "${schedule.name}"'),
               behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 5),
               action: SnackBarAction(
                 label: 'Undo',
-                onPressed: () {
-                  // TODO: Implement undo functionality
+                onPressed: () async {
+                  // Restore the deleted schedule
+                  try {
+                    // Extract colors from the deleted schedule's theme preset
+                    final classColors = <String, ColorSet>{};
+                    if (deletedSchedule.themePreset != null) {
+                      for (final entry
+                          in deletedSchedule.themePreset!.classColors.entries) {
+                        final colorData = entry.value;
+                        final color = Color.fromARGB(
+                          colorData.alpha,
+                          colorData.red,
+                          colorData.green,
+                          colorData.blue,
+                        );
+                        classColors[entry.key] = ColorService.createColorSet(
+                          color,
+                        );
+                      }
+                    }
+
+                    // If no theme preset, regenerate colors
+                    if (classColors.isEmpty) {
+                      final classes = deletedSchedule.table.getAllClasses();
+                      final generated = ColorService.assignColors(classes);
+                      classColors.addAll(generated);
+                    }
+
+                    await context.read<SavedSchedulesProvider>().saveSchedule(
+                      deletedSchedule.name,
+                      deletedSchedule.table,
+                      deletedSchedule.semester,
+                      classColors,
+                      id: deletedSchedule.id,
+                    );
+
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Restored "${deletedSchedule.name}"'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error restoring schedule: $e'),
+                          backgroundColor: Colors.red,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  }
                 },
               ),
             ),

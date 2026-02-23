@@ -39,21 +39,16 @@ class ArrangerService {
       return const ScheduleTable(rows: []);
     }
 
-    // Step 3: Create grid structure
-    final rows = <ScheduleRow>[];
+    // Step 3: Create grid structure (separate mutable column lists)
     final timeToRowIndex = <int, int>{};
+    final columnsList = <List<TimeSlot?>>[];
 
     for (var i = 0; i < sortedTimes.length - 1; i++) {
       final time = sortedTimes[i];
-      final nextTime = sortedTimes[i + 1];
-      final duration = time.durationUntil(nextTime);
-
       timeToRowIndex[time.toMinutes()] = i;
 
       // Initialize with empty slots for all 7 weekdays (mutable list)
-      final columns = List<TimeSlot?>.generate(7, (_) => null);
-
-      rows.add(ScheduleRow(time: time, duration: duration, columns: columns));
+      columnsList.add(List<TimeSlot?>.generate(7, (_) => null));
     }
 
     // Step 4: Fill grid with classes
@@ -71,11 +66,12 @@ class ArrangerService {
 
         for (
           var i = rowIndex;
-          i < rows.length && currentMinutes < endMinutes;
+          i < sortedTimes.length - 1 && currentMinutes < endMinutes;
           i++
         ) {
-          final row = rows[i];
-          currentMinutes += row.duration;
+          final time = sortedTimes[i];
+          final nextTime = sortedTimes[i + 1];
+          currentMinutes += time.durationUntil(nextTime);
           if (i > rowIndex) rowspan++;
         }
 
@@ -83,8 +79,8 @@ class ArrangerService {
         for (final weekday in period.weekdays) {
           final columnIndex = weekday.dayIndex;
 
-          if (columnIndex < rows[rowIndex].columns.length) {
-            rows[rowIndex].columns[columnIndex] = TimeSlot.classSlot(
+          if (columnIndex < columnsList[rowIndex].length) {
+            columnsList[rowIndex][columnIndex] = TimeSlot.classSlot(
               classData: classData,
               rowspan: rowspan,
               colspan: 1,
@@ -95,11 +91,20 @@ class ArrangerService {
       }
     }
 
-    // Step 5: Fill remaining nulls with empty slots
-    for (final row in rows) {
-      for (var i = 0; i < row.columns.length; i++) {
-        row.columns[i] ??= const TimeSlot.emptySlot();
+    // Step 5: Fill remaining nulls with empty slots and create ScheduleRows
+    final rows = <ScheduleRow>[];
+    for (var i = 0; i < sortedTimes.length - 1; i++) {
+      final time = sortedTimes[i];
+      final nextTime = sortedTimes[i + 1];
+      final duration = time.durationUntil(nextTime);
+      final columns = columnsList[i];
+
+      // Fill nulls with empty slots
+      for (var j = 0; j < columns.length; j++) {
+        columns[j] ??= const TimeSlot.emptySlot();
       }
+
+      rows.add(ScheduleRow(time: time, duration: duration, columns: columns));
     }
 
     // Detect PE weekdays (if needed - placeholder for now)

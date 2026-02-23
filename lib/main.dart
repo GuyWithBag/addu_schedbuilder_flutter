@@ -154,15 +154,15 @@ class HomeScreen extends HookWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Icon(Icons.error, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text(
+                    const Icon(Icons.error, color: Colors.red),
+                    const SizedBox(width: 8),
+                    SelectableText(
                       'Parsing Errors:',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Colors.red,
+                        color: Colors.red.shade900,
                       ),
                     ),
                   ],

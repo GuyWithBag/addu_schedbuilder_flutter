@@ -69,8 +69,7 @@ class ExportService {
 
       pdf.addPage(
         pw.Page(
-          pageFormat: PdfPageFormat.a4,
-          orientation: pw.PageOrientation.landscape,
+          pageFormat: PdfPageFormat.a4.landscape,
           build: (pw.Context context) {
             return pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -79,14 +78,14 @@ class ExportService {
                 pw.Text(
                   scheduleName,
                   style: pw.TextStyle(
-                    fontSize: 24,
+                    fontSize: 20,
                     fontWeight: pw.FontWeight.bold,
                   ),
                 ),
-                pw.SizedBox(height: 20),
+                pw.SizedBox(height: 10),
 
                 // Schedule table
-                _buildPDFTable(table, classColors),
+                pw.Expanded(child: _buildPDFTable(table, classColors)),
               ],
             );
           },

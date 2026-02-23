@@ -7,6 +7,7 @@ import '../providers/schedule_provider.dart';
 import '../widgets/save_schedule_dialog.dart';
 import '../widgets/schedule_table_widget.dart';
 import '../widgets/statistics_widget.dart';
+import '../widgets/conflict_indicator_widget.dart';
 
 /// Screen for inputting and parsing schedule text
 class InputScreen extends HookWidget {
@@ -186,6 +187,10 @@ class InputScreen extends HookWidget {
               ),
             ),
           ),
+
+          // Conflict Detection
+          const SizedBox(height: 16),
+          ConflictIndicatorWidget(table: scheduleTable),
 
           // Statistics
           const SizedBox(height: 16),

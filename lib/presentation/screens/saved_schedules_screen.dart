@@ -15,11 +15,11 @@ class SavedSchedulesScreen extends HookWidget {
     final schedules = savedSchedulesProvider.schedules;
     final isLoading = savedSchedulesProvider.isLoading;
 
-    // Load schedules on first build (after build completes)
+    // Load schedules on first build
     useEffect(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        savedSchedulesProvider.loadSchedules();
-      });
+      Future.microtask(
+        () => context.read<SavedSchedulesProvider>().loadSchedules(),
+      );
       return null;
     }, []);
 

@@ -375,7 +375,7 @@ class InputScreen extends HookWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error exporting PNG: $e'),
+            content: SelectableText('Error exporting PNG: $e'),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
           ),
@@ -418,7 +418,7 @@ class InputScreen extends HookWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error exporting PDF: $e'),
+            content: SelectableText('Error exporting PDF: $e'),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
           ),
@@ -460,7 +460,7 @@ class InputScreen extends HookWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error exporting calendar: $e'),
+            content: SelectableText('Error exporting calendar: $e'),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
           ),
@@ -500,7 +500,7 @@ class InputScreen extends HookWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error exporting JSON: $e'),
+            content: SelectableText('Error exporting JSON: $e'),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
           ),

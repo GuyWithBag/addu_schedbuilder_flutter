@@ -9,84 +9,47 @@ A Flutter schedule builder app that parses text schedules, visualizes them in a 
 - Schedule parsing from text format
 - Weekly grid visualization with color-coded classes
 - Save/load schedules with Hive CE persistence
-- Export to PNG, PDF, and JSON
+- **Export to PNG, PDF, and JSON with UI** ⭐ NEW
 - Statistics widget with charts and visualizations
 - Conflict detection with detailed UI
 - Bottom navigation (Input, Saved, Settings screens)
 - Dark mode support
 - 12hr/24hr time format toggle
 - Responsive framework integration
+- **SelectableText throughout app** ⭐ NEW
+- **FittedBox overflow prevention** ⭐ NEW
+
+### ✅ Fixed Issues
+
+#### ~~CRITICAL: Bottom Overflow in Schedule Cells~~ FIXED ✅
+**Solution Applied**: Wrapped Column content in `FittedBox` with `BoxFit.scaleDown`
+- This automatically scales down text when space is limited
+- No more RenderFlex overflow errors
+- Text remains readable and proportional
+
+**Code Location**: `lib/presentation/widgets/schedule_class_cell.dart`
 
 ### 🐛 Known Issues
 
-#### CRITICAL: Bottom Overflow in Schedule Cells
-**Problem**: Schedule class cells show "bottom overflowed by X pixels" error
-
-**Root Cause**: The schedule table uses fixed height (60px) for cells, but the Column inside tries to expand beyond this when displaying class information (code, subject, room).
-
-**Current Code Location**: 
-- `lib/presentation/widgets/schedule_table_widget.dart` - lines 147-180
-- `lib/presentation/widgets/schedule_class_cell.dart` - entire widget
-
-**Attempted Fixes**:
-1. ✅ Added `mainAxisSize: MainAxisSize.min` to Column
-2. ✅ Reduced padding from 8 to 6
-3. ❌ Still overflowing
-
-**Next Steps to Fix**:
-1. Make the cell height dynamic based on rowspan:
-   ```dart
-   height: 60.0 * rowspan, // Instead of fixed 60
-   ```
-
-2. OR wrap the cell content in `SingleChildScrollView` (not ideal for UI)
-
-3. OR use `Flexible` instead of `SizedBox` for cell containers
-
-4. OR reduce font sizes further and hide text conditionally based on available space
-
-**Recommended Solution**:
-```dart
-// In schedule_table_widget.dart, _buildTimeRow method
-// Change from:
-SizedBox(
-  width: 100.0 * colspan,
-  height: 60,
-  child: ScheduleClassCell(...),
-)
-
-// To:
-SizedBox(
-  width: 100.0 * colspan,
-  height: 60.0 * rowspan,  // Dynamic height based on rowspan
-  child: ScheduleClassCell(...),
-)
-```
-
-**Files to Modify**:
-- `lib/presentation/widgets/schedule_table_widget.dart` (line ~157)
+None currently! App is running smoothly.
 
 ---
 
 ### 📋 Future Tasks
 
 #### High Priority
-1. **Fix bottom overflow in schedule cells** (see above)
-2. **Add more SelectableText widgets**:
-   - Class detail card text
-   - Saved schedule card text
-   - Conflict details text
-3. **Test app with real schedule data** to ensure parsing works correctly
+1. ~~**Fix bottom overflow in schedule cells**~~ ✅ DONE (FittedBox solution)
+2. ~~**Add more SelectableText widgets**~~ ✅ DONE (stats, cards, conflicts)
+3. ~~**Add RepaintBoundary for PNG export**~~ ✅ DONE (integrated with export UI)
+4. **Test app with real schedule data** to ensure parsing works correctly
 
 #### Medium Priority
-4. **Implement semester filtering** in SavedSchedulesScreen
+5. **Implement semester filtering** in SavedSchedulesScreen
    - UI already exists, just need to wire up the filter logic
-5. **Add navigation from Input screen to Saved screen** after saving
+6. **Add navigation from Input screen to Saved screen** after saving
    - Currently shows snackbar with "View" action that does nothing
-6. **Implement undo for schedule deletion**
+7. **Implement undo for schedule deletion**
    - Snackbar shows "Undo" button but functionality not implemented
-7. **Add RepaintBoundary key to ScheduleTableWidget** for PNG export
-   - Export widget exists but needs GlobalKey integration
 
 #### Low Priority
 8. **Calendar export (.ics)** - Service exists but not integrated in UI
@@ -215,11 +178,12 @@ Recent commits show steady progress through planned features.
 
 ## Next Session Priorities
 
-1. **FIX OVERFLOW** - Make cell height dynamic (critical UX issue)
-2. Add more SelectableText throughout app
-3. Test with real schedule data
-4. Wire up semester filtering
-5. Add navigation after save
+1. ~~FIX OVERFLOW~~ ✅ DONE - Used FittedBox with scaleDown
+2. ~~Add export UI~~ ✅ DONE - Modal bottom sheet with PNG/PDF/JSON
+3. ~~SelectableText~~ ✅ DONE - Added throughout stats and cards
+4. Test with real schedule data
+5. Wire up semester filtering
+6. Add navigation after save
 
 ## Code Style Guidelines
 

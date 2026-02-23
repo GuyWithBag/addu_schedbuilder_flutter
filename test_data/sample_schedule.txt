@@ -1,0 +1,5 @@
+CS101 Computer Science Introduction to Programming * 8:00 AM - 9:30 AM Room 204 M W F * DOE, JOHN john.doe@example.com 3
+MATH201 Mathematics Calculus I * 10:00 AM - 11:30 AM Room 305 T Th * SMITH, JANE jane.smith@example.edu 4
+ENG102 English Literature and Composition * 1:00 PM - 2:30 PM Room 108 M W * BROWN, ALICE alice.brown@example.com 3
+PHYS101 Physics Mechanics and Motion * 3:00 PM - 4:30 PM Lab 201 T Th * JOHNSON, BOB bob.johnson@example.edu 4
+PE101 Physical Education Fitness Training * 7:00 AM - 8:00 AM Gym M W F * WILLIAMS, SARAH sarah.w@example.com 2

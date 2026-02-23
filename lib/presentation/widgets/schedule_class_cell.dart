@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../domain/models/class_data.dart';
-import '../../domain/models/theme_preset.dart';
 import '../../domain/services/color_service.dart';
 
 /// Widget for displaying a class in the schedule grid

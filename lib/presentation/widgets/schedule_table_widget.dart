@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
 import '../../domain/models/schedule_table.dart';
-import '../../domain/models/time_slot.dart';
 import '../../domain/models/weekday.dart';
 import '../../domain/services/color_service.dart';
 import '../providers/display_config_provider.dart';

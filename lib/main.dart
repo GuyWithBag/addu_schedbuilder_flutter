@@ -7,6 +7,7 @@ import 'presentation/providers/display_config_provider.dart';
 import 'presentation/providers/saved_schedules_provider.dart';
 import 'presentation/providers/schedule_provider.dart';
 import 'presentation/widgets/schedule_table_widget.dart';
+import 'presentation/widgets/save_schedule_dialog.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -126,14 +127,14 @@ class HomeScreen extends HookWidget {
             const SizedBox(height: 16),
 
             // Results
-            Expanded(child: _buildResults(scheduleProvider)),
+            Expanded(child: _buildResults(context, scheduleProvider)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildResults(ScheduleProvider provider) {
+  Widget _buildResults(BuildContext context, ScheduleProvider provider) {
     final parseResult = provider.parseResult;
     final scheduleTable = provider.scheduleTable;
 
@@ -193,7 +194,7 @@ class HomeScreen extends HookWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Success banner
+          // Success banner with save button
           Card(
             color: Colors.green.shade50,
             margin: const EdgeInsets.only(bottom: 16),
@@ -203,12 +204,19 @@ class HomeScreen extends HookWidget {
                 children: [
                   const Icon(Icons.check_circle, color: Colors.green),
                   const SizedBox(width: 8),
-                  Text(
-                    'Successfully parsed ${classes.length} classes!',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
+                  Expanded(
+                    child: Text(
+                      'Successfully parsed ${classes.length} classes!',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
                     ),
+                  ),
+                  FilledButton.icon(
+                    onPressed: () => _showSaveDialog(context),
+                    icon: const Icon(Icons.save),
+                    label: const Text('Save'),
                   ),
                 ],
               ),
@@ -235,3 +243,54 @@ class HomeScreen extends HookWidget {
       ),
     );
   }
+
+  void _showSaveDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => SaveScheduleDialog(
+        onSave: (name, semester) async {
+          final scheduleProvider = context.read<ScheduleProvider>();
+          final savedSchedulesProvider = context.read<SavedSchedulesProvider>();
+          final displayConfigProvider = context.read<DisplayConfigProvider>();
+
+          final scheduleTable = scheduleProvider.scheduleTable;
+          if (scheduleTable == null) return;
+
+          try {
+            await savedSchedulesProvider.saveSchedule(
+              name,
+              scheduleTable,
+              semester,
+              displayConfigProvider.classColors,
+            );
+
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Schedule "$name" saved successfully!'),
+                  behavior: SnackBarBehavior.floating,
+                  action: SnackBarAction(
+                    label: 'View',
+                    onPressed: () {
+                      // TODO: Navigate to saved schedules screen
+                    },
+                  ),
+                ),
+              );
+            }
+          } catch (e) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Error saving schedule: $e'),
+                  backgroundColor: Colors.red,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            }
+          }
+        },
+      ),
+    );
+  }
+}

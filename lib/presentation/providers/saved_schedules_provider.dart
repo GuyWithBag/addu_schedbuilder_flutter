@@ -1,9 +1,10 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../../domain/models/saved_schedule.dart';
 import '../../domain/models/schedule_table.dart';
 import '../../domain/models/theme_preset.dart';
 import '../../domain/repositories/schedule_repository.dart';
+import '../../domain/services/color_service.dart';
 
 /// Provider for managing saved schedules
 class SavedSchedulesProvider extends ChangeNotifier {
@@ -38,12 +39,31 @@ class SavedSchedulesProvider extends ChangeNotifier {
   }
 
   /// Save a new schedule
-  Future<void> saveSchedule({
-    required String name,
-    required ScheduleTable table,
+  Future<void> saveSchedule(
+    String name,
+    ScheduleTable table,
     String? semester,
-    ThemePreset? themePreset,
-  }) async {
+    Map<String, ColorSet> classColors,
+  ) async {
+    // Convert ColorSet to ColorData for storage
+    final colorDataMap = <String, ColorData>{};
+    for (final entry in classColors.entries) {
+      final color = entry.value.primary;
+      colorDataMap[entry.key] = ColorData(
+        red: color.red,
+        green: color.green,
+        blue: color.blue,
+        alpha: color.alpha,
+      );
+    }
+
+    final themePreset = ThemePreset(
+      id: const Uuid().v4(),
+      name: 'Default Theme',
+      classColors: colorDataMap,
+      isDarkMode: false, // Will be set from DisplayConfigProvider in the future
+    );
+
     final schedule = SavedSchedule(
       id: const Uuid().v4(),
       name: name,

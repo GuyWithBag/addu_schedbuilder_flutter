@@ -1,23 +1,12 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hive_ce/hive.dart';
+import 'note_type.dart';
 
 part 'class_note.freezed.dart';
 part 'class_note.g.dart';
 
-@HiveType(typeId: 11)
-enum NoteType {
-  @HiveField(0)
-  homework,
-
-  @HiveField(1)
-  exam,
-
-  @HiveField(2)
-  general,
-}
-
 @freezed
-@HiveType(typeId: 12)
+@HiveType(typeId: 10)
 class ClassNote with _$ClassNote {
   const ClassNote._();
 

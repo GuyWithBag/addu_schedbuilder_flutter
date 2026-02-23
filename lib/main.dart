@@ -4,9 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'data/local/hive_setup.dart';
 import 'data/repositories/schedule_repository_impl.dart';
+import 'data/repositories/notes_repository_impl.dart';
 import 'presentation/providers/display_config_provider.dart';
 import 'presentation/providers/saved_schedules_provider.dart';
 import 'presentation/providers/schedule_provider.dart';
+import 'presentation/providers/notes_provider.dart';
 import 'presentation/screens/home_screen.dart';
 
 void main() async {
@@ -15,8 +17,9 @@ void main() async {
   // Initialize Hive CE
   await initHive();
 
-  // Create repository
+  // Create repositories
   final scheduleRepo = ScheduleRepositoryImpl();
+  final notesRepo = NotesRepositoryImpl();
 
   runApp(
     MultiProvider(
@@ -25,6 +28,9 @@ void main() async {
         ChangeNotifierProvider(create: (_) => DisplayConfigProvider()),
         ChangeNotifierProvider(
           create: (_) => SavedSchedulesProvider(repository: scheduleRepo),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => NotesProvider(repository: notesRepo),
         ),
       ],
       child: const MyApp(),

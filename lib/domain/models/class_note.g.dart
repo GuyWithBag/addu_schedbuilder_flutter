@@ -8,7 +8,7 @@ part of 'class_note.dart';
 
 class ClassNoteAdapter extends TypeAdapter<ClassNote> {
   @override
-  final typeId = 12;
+  final typeId = 10;
 
   @override
   ClassNote read(BinaryReader reader) {
@@ -52,47 +52,6 @@ class ClassNoteAdapter extends TypeAdapter<ClassNote> {
           typeId == other.typeId;
 }
 
-class NoteTypeAdapter extends TypeAdapter<NoteType> {
-  @override
-  final typeId = 11;
-
-  @override
-  NoteType read(BinaryReader reader) {
-    switch (reader.readByte()) {
-      case 0:
-        return NoteType.homework;
-      case 1:
-        return NoteType.exam;
-      case 2:
-        return NoteType.general;
-      default:
-        return NoteType.homework;
-    }
-  }
-
-  @override
-  void write(BinaryWriter writer, NoteType obj) {
-    switch (obj) {
-      case NoteType.homework:
-        writer.writeByte(0);
-      case NoteType.exam:
-        writer.writeByte(1);
-      case NoteType.general:
-        writer.writeByte(2);
-    }
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is NoteTypeAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
@@ -118,7 +77,7 @@ Map<String, dynamic> _$$ClassNoteImplToJson(_$ClassNoteImpl instance) =>
     };
 
 const _$NoteTypeEnumMap = {
+  NoteType.general: 'general',
   NoteType.homework: 'homework',
   NoteType.exam: 'exam',
-  NoteType.general: 'general',
 };

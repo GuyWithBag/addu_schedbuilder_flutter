@@ -6,6 +6,7 @@ import 'package:hive_ce/hive.dart';
 import 'package:addu_schedbuilder_flutter/domain/models/class_data.dart';
 import 'package:addu_schedbuilder_flutter/domain/models/class_note.dart';
 import 'package:addu_schedbuilder_flutter/domain/models/class_period.dart';
+import 'package:addu_schedbuilder_flutter/domain/models/note_type.dart';
 import 'package:addu_schedbuilder_flutter/domain/models/notification_config.dart';
 import 'package:addu_schedbuilder_flutter/domain/models/saved_schedule.dart';
 import 'package:addu_schedbuilder_flutter/domain/models/schedule_row.dart';

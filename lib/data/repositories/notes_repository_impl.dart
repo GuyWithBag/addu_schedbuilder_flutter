@@ -1,53 +1,67 @@
 import 'package:hive_ce/hive.dart';
 import '../../domain/models/class_note.dart';
 import '../../domain/repositories/notes_repository.dart';
-import '../local/hive_setup.dart';
 
-/// Hive CE implementation of NotesRepository
+/// Hive-based implementation of NotesRepository
 class NotesRepositoryImpl implements NotesRepository {
-  static const String _boxName = 'notes';
+  static const String _boxName = 'class_notes';
+  Box<ClassNote>? _box;
 
-  Box<ClassNote> get _box => getBox<ClassNote>(_boxName);
-
-  @override
-  Future<void> save(ClassNote note) async {
-    await _box.put(note.id, note);
+  Future<Box<ClassNote>> get _notesBox async {
+    if (_box != null && _box!.isOpen) {
+      return _box!;
+    }
+    _box = await Hive.openBox<ClassNote>(_boxName);
+    return _box!;
   }
 
   @override
-  Future<List<ClassNote>> getByClassCode(String classCode) async {
-    return _box.values.where((note) => note.classCode == classCode).toList();
+  Future<void> save(ClassNote note) async {
+    final box = await _notesBox;
+    await box.put(note.id, note);
   }
 
   @override
   Future<List<ClassNote>> getAll() async {
-    return _box.values.toList();
+    final box = await _notesBox;
+    return box.values.toList();
+  }
+
+  @override
+  Future<List<ClassNote>> getByClassCode(String classCode) async {
+    final box = await _notesBox;
+    return box.values.where((note) => note.classCode == classCode).toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt)); // Newest first
+  }
+
+  @override
+  Future<ClassNote?> getById(String id) async {
+    final box = await _notesBox;
+    return box.get(id);
   }
 
   @override
   Future<void> delete(String id) async {
-    await _box.delete(id);
+    final box = await _notesBox;
+    await box.delete(id);
   }
 
   @override
   Future<void> update(ClassNote note) async {
-    await _box.put(note.id, note);
+    final box = await _notesBox;
+    await box.put(note.id, note);
   }
 
   @override
-  Future<void> deleteByClassCode(String classCode) async {
-    final notesToDelete = _box.values
+  Future<void> deleteAllForClass(String classCode) async {
+    final box = await _notesBox;
+    final notesToDelete = box.values
         .where((note) => note.classCode == classCode)
         .map((note) => note.id)
         .toList();
 
     for (final id in notesToDelete) {
-      await _box.delete(id);
+      await box.delete(id);
     }
-  }
-
-  @override
-  Future<void> clearAll() async {
-    await _box.clear();
   }
 }

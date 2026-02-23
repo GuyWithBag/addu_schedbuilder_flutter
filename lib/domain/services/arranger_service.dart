@@ -50,8 +50,8 @@ class ArrangerService {
 
       timeToRowIndex[time.toMinutes()] = i;
 
-      // Initialize with empty slots for all 7 weekdays
-      final columns = List<TimeSlot?>.filled(7, null);
+      // Initialize with empty slots for all 7 weekdays (mutable list)
+      final columns = List<TimeSlot?>.generate(7, (_) => null);
 
       rows.add(ScheduleRow(time: time, duration: duration, columns: columns));
     }

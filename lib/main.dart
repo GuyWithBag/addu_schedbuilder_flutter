@@ -171,7 +171,7 @@ class HomeScreen extends HookWidget {
                 ...parseResult.errors!.map(
                   (error) => Padding(
                     padding: const EdgeInsets.only(bottom: 4),
-                    child: Text('• $error'),
+                    child: SelectableText('• $error'),
                   ),
                 ),
               ],

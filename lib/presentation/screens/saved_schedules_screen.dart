@@ -3,11 +3,13 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
 import '../providers/saved_schedules_provider.dart';
 import '../providers/schedule_provider.dart';
+import '../providers/display_config_provider.dart';
 import '../widgets/saved_schedule_card.dart';
 import '../../domain/services/color_service.dart';
 import '../../domain/models/theme_preset.dart';
 import 'comparison_screen.dart';
 import 'qr_scanner_screen.dart';
+import 'home_screen.dart';
 import '../widgets/qr_share_dialog.dart';
 
 /// Screen displaying all saved schedules
@@ -203,23 +205,94 @@ class SavedSchedulesScreen extends HookWidget {
 
   Future<void> _loadSchedule(BuildContext context, String scheduleId) async {
     final savedSchedulesProvider = context.read<SavedSchedulesProvider>();
-    final scheduleProvider = context.read<ScheduleProvider>();
-
     final schedule = await savedSchedulesProvider.loadScheduleById(scheduleId);
 
-    if (schedule != null && context.mounted) {
-      // Load the schedule table into ScheduleProvider
-      scheduleProvider.loadScheduleTable(schedule.table);
+    if (schedule == null) return;
 
+    if (!context.mounted) return;
+
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Apply Schedule'),
+        content: Text(
+          'Apply "${schedule.name}" to the schedule view?\n\n'
+          'This will replace the current schedule being displayed.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Apply'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    final scheduleProvider = context.read<ScheduleProvider>();
+
+    // Load the schedule table into ScheduleProvider with the schedule ID
+    scheduleProvider.loadScheduleTable(schedule.table, scheduleId: schedule.id);
+
+    // Apply theme preset if available
+    if (schedule.themePreset != null) {
+      final displayConfig = context.read<DisplayConfigProvider>();
+      final themePreset = schedule.themePreset!;
+
+      // Apply class colors
+      for (final entry in themePreset.classColors.entries) {
+        final colorData = entry.value;
+        displayConfig.updateClassColor(
+          entry.key,
+          ColorSet(
+            primary: colorData,
+            light: ColorData(
+              red: (colorData.red + (255 - colorData.red) * 0.2).round().clamp(
+                0,
+                255,
+              ),
+              green: (colorData.green + (255 - colorData.green) * 0.2)
+                  .round()
+                  .clamp(0, 255),
+              blue: (colorData.blue + (255 - colorData.blue) * 0.2)
+                  .round()
+                  .clamp(0, 255),
+              alpha: colorData.alpha,
+            ),
+            dark: ColorData(
+              red: (colorData.red * 0.8).round().clamp(0, 255),
+              green: (colorData.green * 0.8).round().clamp(0, 255),
+              blue: (colorData.blue * 0.8).round().clamp(0, 255),
+              alpha: colorData.alpha,
+            ),
+            text: const ColorData(red: 255, green: 255, blue: 255, alpha: 255),
+          ),
+        );
+      }
+    }
+
+    if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Loaded "${schedule.name}"'),
+          content: Text('Applied "${schedule.name}"'),
           behavior: SnackBarBehavior.floating,
         ),
       );
 
-      // Navigate back to schedule view
-      // TODO: Navigate to schedule screen when navigation is implemented
+      // Navigate to input screen (home page) to show the loaded schedule
+      if (context.mounted) {
+        // Use the home screen navigator to switch to the input/schedule tab
+        final navigatorState = HomeScreen.navigatorKey.currentState;
+        navigatorState?.navigateToTab(
+          0,
+        ); // Index 0 is the input screen (shows schedule)
+      }
     }
   }
 

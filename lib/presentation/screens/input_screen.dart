@@ -259,7 +259,9 @@ class InputScreen extends HookWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => SaveScheduleDialog(
-        onSave: (name, semester) async {
+        existingSchedules: context.read<SavedSchedulesProvider>().schedules,
+        currentScheduleId: context.read<ScheduleProvider>().currentScheduleId,
+        onSave: (name, semester, {String? overwriteId}) async {
           final scheduleProvider = context.read<ScheduleProvider>();
           final savedSchedulesProvider = context.read<SavedSchedulesProvider>();
           final displayConfigProvider = context.read<DisplayConfigProvider>();
@@ -273,6 +275,7 @@ class InputScreen extends HookWidget {
               scheduleTable,
               semester,
               displayConfigProvider.classColors,
+              id: overwriteId, // Pass the overwrite ID if provided
             );
 
             if (context.mounted) {

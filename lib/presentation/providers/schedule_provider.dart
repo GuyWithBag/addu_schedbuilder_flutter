@@ -9,11 +9,13 @@ class ScheduleProvider extends ChangeNotifier {
   ParseResult? _parseResult;
   ScheduleTable? _scheduleTable;
   bool _isLoading = false;
+  String? _currentScheduleId; // Track which saved schedule is currently loaded
 
   String get inputText => _inputText;
   ParseResult? get parseResult => _parseResult;
   ScheduleTable? get scheduleTable => _scheduleTable;
   bool get isLoading => _isLoading;
+  String? get currentScheduleId => _currentScheduleId;
 
   /// Update input text
   void updateInput(String text) {
@@ -60,14 +62,16 @@ class ScheduleProvider extends ChangeNotifier {
     _inputText = '';
     _parseResult = null;
     _scheduleTable = null;
+    _currentScheduleId = null;
     notifyListeners();
   }
 
   /// Load a schedule table directly (e.g., from saved schedule)
-  void loadScheduleTable(ScheduleTable table) {
+  void loadScheduleTable(ScheduleTable table, {String? scheduleId}) {
     _scheduleTable = table;
     _parseResult = null;
     _inputText = '';
+    _currentScheduleId = scheduleId;
     notifyListeners();
   }
 }

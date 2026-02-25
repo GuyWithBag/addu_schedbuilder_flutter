@@ -5,6 +5,7 @@ import '../../domain/models/class_note.dart';
 import '../../domain/models/notification_config.dart';
 import '../../domain/models/saved_schedule.dart';
 import '../../domain/models/theme_preset.dart';
+import '../../domain/models/table_theme.dart';
 
 /// Initialize Hive CE with all type adapters
 Future<void> initHive() async {
@@ -31,12 +32,14 @@ Future<void> initHive() async {
   Hive.registerAdapter(BarSlotAdapter());
   Hive.registerAdapter(EmptySlotAdapter());
   Hive.registerAdapter(ColorDataAdapter());
+  Hive.registerAdapter(TableThemeAdapter());
 
   // Open boxes for each entity type
   await Hive.openBox<SavedSchedule>('schedules');
   await Hive.openBox<ClassNote>('notes');
   await Hive.openBox<ThemePreset>('theme_presets');
   await Hive.openBox<NotificationConfig>('notification_config');
+  await Hive.openBox<TableTheme>('table_themes');
 }
 
 /// Close all Hive boxes (call on app disposal)

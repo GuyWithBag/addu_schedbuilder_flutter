@@ -7,6 +7,22 @@ class TableThemeRepositoryImpl implements TableThemeRepository {
   static const String _boxName = 'table_themes';
   Box<TableTheme>? _box;
 
+  TableThemeRepositoryImpl() {
+    // Ensure the box is opened when repository is created
+    _initBox();
+  }
+
+  Future<void> _initBox() async {
+    try {
+      _box = await Hive.openBox<TableTheme>(_boxName);
+    } catch (e) {
+      // Box might already be open, try to get it
+      if (Hive.isBoxOpen(_boxName)) {
+        _box = Hive.box<TableTheme>(_boxName);
+      }
+    }
+  }
+
   Future<Box<TableTheme>> _getBox() async {
     if (_box == null || !_box!.isOpen) {
       _box = await Hive.openBox<TableTheme>(_boxName);

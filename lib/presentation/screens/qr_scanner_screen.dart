@@ -2,11 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import '../../domain/services/qr_share_service.dart';
+import '../../domain/models/saved_schedule.dart';
 import '../providers/saved_schedules_provider.dart';
+import 'schedule_comparison_screen.dart';
 
 /// Screen for scanning QR codes to import schedules
 class QrScannerScreen extends StatefulWidget {
-  const QrScannerScreen({super.key});
+  final bool comparisonMode;
+  final SavedSchedule? mySchedule;
+
+  const QrScannerScreen({
+    super.key,
+    this.comparisonMode = false,
+    this.mySchedule,
+  });
 
   @override
   State<QrScannerScreen> createState() => _QrScannerScreenState();
@@ -15,6 +24,7 @@ class QrScannerScreen extends StatefulWidget {
 class _QrScannerScreenState extends State<QrScannerScreen> {
   MobileScannerController cameraController = MobileScannerController();
   bool _isProcessing = false;
+  final List<SavedSchedule> _scannedSchedules = [];
 
   @override
   void dispose() {
@@ -26,8 +36,17 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scan QR Code'),
+        title: Text(widget.comparisonMode ? 'Scan to Compare' : 'Scan QR Code'),
         actions: [
+          if (widget.comparisonMode && _scannedSchedules.isNotEmpty)
+            IconButton(
+              icon: Badge(
+                label: Text('${_scannedSchedules.length}'),
+                child: const Icon(Icons.compare_arrows),
+              ),
+              onPressed: _showComparison,
+              tooltip: 'Compare schedules',
+            ),
           IconButton(
             icon: const Icon(Icons.flash_on),
             onPressed: () => cameraController.toggleTorch(),
@@ -67,9 +86,11 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
                     size: 48,
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    'Position QR code within the frame',
-                    style: TextStyle(
+                  Text(
+                    widget.comparisonMode
+                        ? 'Scan QR codes to compare schedules'
+                        : 'Position QR code within the frame',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -78,7 +99,11 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'The schedule will be imported automatically',
+                    widget.comparisonMode
+                        ? _scannedSchedules.isEmpty
+                              ? 'Scan friend\'s schedules to find common free time'
+                              : 'Scanned ${_scannedSchedules.length} schedule(s). Tap compare button above.'
+                        : 'The schedule will be imported automatically',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.7),
                       fontSize: 14,
@@ -109,7 +134,11 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
     final schedule = QrShareService.qrDataToSchedule(code);
 
     if (schedule != null) {
-      _importSchedule(schedule);
+      if (widget.comparisonMode) {
+        _addToComparison(schedule);
+      } else {
+        _importSchedule(schedule);
+      }
     } else {
       _showError('Invalid QR code. This is not a valid schedule.');
     }
@@ -174,6 +203,56 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
             child: const Text('Cancel'),
           ),
         ],
+      ),
+    );
+  }
+
+  void _addToComparison(SavedSchedule schedule) {
+    setState(() {
+      _scannedSchedules.add(schedule);
+      _isProcessing = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Added "${schedule.name}" to comparison'),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              _scannedSchedules.removeLast();
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showComparison() {
+    // Add my schedule if provided
+    final schedulesToCompare = <SavedSchedule>[
+      if (widget.mySchedule != null) widget.mySchedule!,
+      ..._scannedSchedules,
+    ];
+
+    if (schedulesToCompare.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Need at least 2 schedules to compare'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    // Navigate to comparison screen
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            ScheduleComparisonScreen(schedules: schedulesToCompare),
       ),
     );
   }

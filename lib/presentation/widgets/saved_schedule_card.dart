@@ -8,6 +8,7 @@ class SavedScheduleCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onDelete;
   final VoidCallback? onShare;
+  final VoidCallback? onCompare;
 
   const SavedScheduleCard({
     super.key,
@@ -15,6 +16,7 @@ class SavedScheduleCard extends StatelessWidget {
     required this.onTap,
     required this.onDelete,
     this.onShare,
+    this.onCompare,
   });
 
   @override
@@ -44,6 +46,13 @@ class SavedScheduleCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (onCompare != null)
+                    IconButton(
+                      icon: const Icon(Icons.compare_arrows),
+                      onPressed: onCompare,
+                      tooltip: 'Scan to compare',
+                      color: theme.colorScheme.secondary,
+                    ),
                   if (onShare != null)
                     IconButton(
                       icon: const Icon(Icons.qr_code_2),

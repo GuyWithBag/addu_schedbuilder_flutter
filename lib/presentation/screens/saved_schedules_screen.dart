@@ -195,6 +195,7 @@ class SavedSchedulesScreen extends HookWidget {
           onTap: () => _loadSchedule(context, schedule.id),
           onDelete: () => _confirmDelete(context, schedule),
           onShare: () => _showQrCode(context, schedule),
+          onCompare: () => _scanToCompare(context, schedule),
         );
       },
     );
@@ -361,6 +362,16 @@ class SavedSchedulesScreen extends HookWidget {
     showDialog(
       context: context,
       builder: (context) => QrShareDialog(schedule: schedule),
+    );
+  }
+
+  void _scanToCompare(BuildContext context, dynamic schedule) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            QrScannerScreen(comparisonMode: true, mySchedule: schedule),
+      ),
     );
   }
 }

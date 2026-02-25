@@ -8,6 +8,7 @@ import '../widgets/save_schedule_dialog.dart';
 import '../widgets/schedule_table_widget.dart';
 import '../widgets/statistics_widget.dart';
 import '../widgets/conflict_indicator_widget.dart';
+import '../widgets/class_info_table.dart';
 import '../../domain/services/export_service.dart';
 import '../../domain/models/saved_schedule.dart';
 import 'package:share_plus/share_plus.dart';
@@ -230,6 +231,25 @@ class InputScreen extends HookWidget {
           // Statistics
           const SizedBox(height: 16),
           StatisticsWidget(table: scheduleTable),
+
+          // Class Information Table
+          const SizedBox(height: 16),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Class Information',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 16),
+                  ClassInfoTable(scheduleTable: scheduleTable),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

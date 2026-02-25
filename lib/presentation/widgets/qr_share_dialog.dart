@@ -15,6 +15,7 @@ class QrShareDialog extends StatelessWidget {
     final qrData = QrShareService.scheduleToQrData(schedule);
     final isTooLarge = QrShareService.isTooLargeForQr(schedule);
     final dataSize = QrShareService.getDataSize(schedule);
+    final compressionRatio = QrShareService.getCompressionRatio(schedule);
 
     return Dialog(
       child: ConstrainedBox(
@@ -72,10 +73,11 @@ class QrShareDialog extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Data size: ${(dataSize / 1024).toStringAsFixed(1)} KB',
+                  'Compressed size: ${(dataSize / 1024).toStringAsFixed(1)} KB (${(compressionRatio * 100).toStringAsFixed(0)}% of original)',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.outline,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ],
 

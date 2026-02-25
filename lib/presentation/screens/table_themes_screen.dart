@@ -16,7 +16,10 @@ class TableThemesScreen extends HookWidget {
     final themes = themeProvider.themes;
 
     useEffect(() {
-      themeProvider.loadThemes();
+      // Load themes after build completes
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        themeProvider.loadThemes();
+      });
       return null;
     }, []);
 

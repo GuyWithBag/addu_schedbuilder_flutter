@@ -12,6 +12,8 @@ class SavedSchedule {
   final ScheduleTable table;
   final String? semester;
   final ThemePreset? themePreset;
+  final String?
+  inputText; // Original text that was parsed to create this schedule
 
   const SavedSchedule({
     required this.id,
@@ -20,6 +22,7 @@ class SavedSchedule {
     required this.table,
     this.semester,
     this.themePreset,
+    this.inputText,
   });
 
   /// JSON serialization
@@ -46,6 +49,7 @@ class SavedSchedule {
     ScheduleTable? table,
     String? semester,
     ThemePreset? themePreset,
+    String? inputText,
   }) {
     return SavedSchedule(
       id: id ?? this.id,
@@ -54,6 +58,7 @@ class SavedSchedule {
       table: table ?? this.table,
       semester: semester ?? this.semester,
       themePreset: themePreset ?? this.themePreset,
+      inputText: inputText ?? this.inputText,
     );
   }
 
@@ -68,7 +73,8 @@ class SavedSchedule {
           createdAt == other.createdAt &&
           table == other.table &&
           semester == other.semester &&
-          themePreset == other.themePreset;
+          themePreset == other.themePreset &&
+          inputText == other.inputText;
 
   @override
   int get hashCode =>
@@ -77,7 +83,8 @@ class SavedSchedule {
       createdAt.hashCode ^
       table.hashCode ^
       (semester?.hashCode ?? 0) ^
-      (themePreset?.hashCode ?? 0);
+      (themePreset?.hashCode ?? 0) ^
+      (inputText?.hashCode ?? 0);
 
   @override
   String toString() =>

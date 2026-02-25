@@ -27,6 +27,14 @@ class InputScreen extends HookWidget {
     final textController = useTextEditingController();
     final repaintBoundaryKey = useMemoized(() => GlobalKey());
 
+    // Sync text controller with provider's inputText
+    useEffect(() {
+      if (textController.text != scheduleProvider.inputText) {
+        textController.text = scheduleProvider.inputText;
+      }
+      return null;
+    }, [scheduleProvider.inputText]);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('SchedBuilder'),
@@ -302,6 +310,8 @@ class InputScreen extends HookWidget {
               semester,
               displayConfigProvider.classColors,
               id: overwriteId, // Pass the overwrite ID if provided
+              inputText:
+                  scheduleProvider.inputText, // Save the original input text
             );
 
             if (context.mounted) {

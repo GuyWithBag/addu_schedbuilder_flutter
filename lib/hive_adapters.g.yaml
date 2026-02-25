@@ -101,7 +101,7 @@ types:
         index: 2
   SavedSchedule:
     typeId: 8
-    nextIndex: 6
+    nextIndex: 7
     fields:
       id:
         index: 0
@@ -115,6 +115,8 @@ types:
         index: 4
       themePreset:
         index: 5
+      inputText:
+        index: 6
   ThemePreset:
     typeId: 9
     nextIndex: 4

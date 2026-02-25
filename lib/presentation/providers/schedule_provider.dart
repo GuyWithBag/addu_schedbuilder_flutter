@@ -67,10 +67,15 @@ class ScheduleProvider extends ChangeNotifier {
   }
 
   /// Load a schedule table directly (e.g., from saved schedule)
-  void loadScheduleTable(ScheduleTable table, {String? scheduleId}) {
+  void loadScheduleTable(
+    ScheduleTable table, {
+    String? scheduleId,
+    String? inputText,
+  }) {
     _scheduleTable = table;
     _parseResult = null;
-    _inputText = '';
+    _inputText =
+        inputText ?? ''; // Restore the original input text if available
     _currentScheduleId = scheduleId;
     notifyListeners();
   }

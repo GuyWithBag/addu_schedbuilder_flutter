@@ -237,8 +237,12 @@ class SavedSchedulesScreen extends HookWidget {
 
     final scheduleProvider = context.read<ScheduleProvider>();
 
-    // Load the schedule table into ScheduleProvider with the schedule ID
-    scheduleProvider.loadScheduleTable(schedule.table, scheduleId: schedule.id);
+    // Load the schedule table into ScheduleProvider with the schedule ID and input text
+    scheduleProvider.loadScheduleTable(
+      schedule.table,
+      scheduleId: schedule.id,
+      inputText: schedule.inputText,
+    );
 
     // Apply theme preset if available
     if (schedule.themePreset != null) {

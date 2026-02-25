@@ -16,6 +16,7 @@ SavedSchedule _$SavedScheduleFromJson(Map<String, dynamic> json) =>
       themePreset: json['themePreset'] == null
           ? null
           : ThemePreset.fromJson(json['themePreset'] as Map<String, dynamic>),
+      inputText: json['inputText'] as String?,
     );
 
 Map<String, dynamic> _$SavedScheduleToJson(SavedSchedule instance) =>
@@ -26,4 +27,5 @@ Map<String, dynamic> _$SavedScheduleToJson(SavedSchedule instance) =>
       'table': instance.table,
       'semester': instance.semester,
       'themePreset': instance.themePreset,
+      'inputText': instance.inputText,
     };

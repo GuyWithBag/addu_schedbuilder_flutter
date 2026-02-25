@@ -376,13 +376,14 @@ class SavedScheduleAdapter extends TypeAdapter<SavedSchedule> {
       table: fields[3] as ScheduleTable,
       semester: fields[4] as String?,
       themePreset: fields[5] as ThemePreset?,
+      inputText: fields[6] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, SavedSchedule obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -394,7 +395,9 @@ class SavedScheduleAdapter extends TypeAdapter<SavedSchedule> {
       ..writeByte(4)
       ..write(obj.semester)
       ..writeByte(5)
-      ..write(obj.themePreset);
+      ..write(obj.themePreset)
+      ..writeByte(6)
+      ..write(obj.inputText);
   }
 
   @override

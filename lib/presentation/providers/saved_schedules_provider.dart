@@ -45,6 +45,7 @@ class SavedSchedulesProvider extends ChangeNotifier {
     String? semester,
     Map<String, ColorSet> classColors, {
     String? id, // Optional: for restoring deleted schedules with same ID
+    String? inputText, // Optional: original input text that was parsed
   }) async {
     // Convert ColorSet to ColorData for storage
     final colorDataMap = <String, ColorData>{};
@@ -72,6 +73,7 @@ class SavedSchedulesProvider extends ChangeNotifier {
       table: table,
       semester: semester,
       themePreset: themePreset,
+      inputText: inputText, // Save the original input text
     );
 
     try {

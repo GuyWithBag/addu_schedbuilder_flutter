@@ -11,6 +11,7 @@ import '../widgets/conflict_indicator_widget.dart';
 import '../widgets/class_info_table.dart';
 import '../../domain/services/export_service.dart';
 import '../../domain/models/saved_schedule.dart';
+import '../../domain/models/schedule_table.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
@@ -104,6 +105,17 @@ class InputScreen extends HookWidget {
     final parseResult = provider.parseResult;
     final scheduleTable = provider.scheduleTable;
 
+    // If we have a schedule table (either parsed or loaded), show it
+    if (scheduleTable != null && !scheduleTable.isEmpty) {
+      return _buildScheduleView(
+        context,
+        scheduleTable,
+        repaintBoundaryKey,
+        provider.currentScheduleId != null,
+      );
+    }
+
+    // No schedule table yet
     if (parseResult == null) {
       return const Center(
         child: Text(
@@ -149,11 +161,16 @@ class InputScreen extends HookWidget {
       );
     }
 
-    if (scheduleTable == null || scheduleTable.isEmpty) {
-      return const Center(child: Text('No schedule to display'));
-    }
+    // This code should never be reached now, but keep it for safety
+    return const Center(child: Text('No schedule to display'));
+  }
 
-    // Success! Show schedule table
+  Widget _buildScheduleView(
+    BuildContext context,
+    ScheduleTable scheduleTable,
+    GlobalKey repaintBoundaryKey,
+    bool isLoadedSchedule,
+  ) {
     final classes = scheduleTable.getAllClasses();
 
     return SingleChildScrollView(
@@ -162,20 +179,29 @@ class InputScreen extends HookWidget {
         children: [
           // Success banner with save button
           Card(
-            color: Colors.green.shade50,
+            color: isLoadedSchedule
+                ? Colors.blue.shade50
+                : Colors.green.shade50,
             margin: const EdgeInsets.only(bottom: 16),
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Row(
                 children: [
-                  const Icon(Icons.check_circle, color: Colors.green),
+                  Icon(
+                    isLoadedSchedule ? Icons.folder_open : Icons.check_circle,
+                    color: isLoadedSchedule ? Colors.blue : Colors.green,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Successfully parsed ${classes.length} classes!',
-                      style: const TextStyle(
+                      isLoadedSchedule
+                          ? 'Loaded schedule (${classes.length} classes)'
+                          : 'Successfully parsed ${classes.length} classes!',
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Colors.green,
+                        color: isLoadedSchedule
+                            ? Colors.blue.shade900
+                            : Colors.green,
                       ),
                     ),
                   ),

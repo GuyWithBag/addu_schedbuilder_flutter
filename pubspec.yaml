@@ -58,6 +58,7 @@ dependencies:
   # Sharing
   share_plus: ^10.0.3
   qr_flutter: ^4.1.0
+  mobile_scanner: ^5.2.3
 
   # Notifications
   flutter_local_notifications: ^18.0.1

@@ -7,6 +7,8 @@ import '../widgets/saved_schedule_card.dart';
 import '../../domain/services/color_service.dart';
 import '../../domain/models/theme_preset.dart';
 import 'comparison_screen.dart';
+import 'qr_scanner_screen.dart';
+import '../widgets/qr_share_dialog.dart';
 
 /// Screen displaying all saved schedules
 class SavedSchedulesScreen extends HookWidget {
@@ -39,6 +41,18 @@ class SavedSchedulesScreen extends HookWidget {
       appBar: AppBar(
         title: const Text('Saved Schedules'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.qr_code_scanner),
+            tooltip: 'Scan QR Code',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const QrScannerScreen(),
+                ),
+              );
+            },
+          ),
           if (allSchedules.length >= 2)
             IconButton(
               icon: const Icon(Icons.compare_arrows),
@@ -180,6 +194,7 @@ class SavedSchedulesScreen extends HookWidget {
           schedule: schedule,
           onTap: () => _loadSchedule(context, schedule.id),
           onDelete: () => _confirmDelete(context, schedule),
+          onShare: () => _showQrCode(context, schedule),
         );
       },
     );
@@ -340,5 +355,12 @@ class SavedSchedulesScreen extends HookWidget {
         }
       }
     }
+  }
+
+  void _showQrCode(BuildContext context, dynamic schedule) {
+    showDialog(
+      context: context,
+      builder: (context) => QrShareDialog(schedule: schedule),
+    );
   }
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../../domain/models/table_theme.dart';
 import '../../domain/models/theme_preset.dart';
-import '../../domain/models/weekday.dart';
 import '../../domain/repositories/table_theme_repository.dart';
 import 'display_config_provider.dart';
 

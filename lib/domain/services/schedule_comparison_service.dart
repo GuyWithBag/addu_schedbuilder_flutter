@@ -2,7 +2,6 @@ import '../models/schedule_table.dart';
 import '../models/time_block.dart';
 import '../models/time.dart';
 import '../models/weekday.dart';
-import '../models/class_data.dart';
 
 /// Service for comparing schedules and finding common free time
 class ScheduleComparisonService {

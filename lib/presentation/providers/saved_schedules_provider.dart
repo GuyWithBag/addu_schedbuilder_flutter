@@ -83,6 +83,17 @@ class SavedSchedulesProvider extends ChangeNotifier {
     }
   }
 
+  /// Save a schedule from import (QR code, JSON, etc.)
+  Future<void> saveScheduleFromImport(SavedSchedule schedule) async {
+    try {
+      await _repository.save(schedule);
+      await loadSchedules();
+    } catch (e) {
+      debugPrint('Error saving imported schedule: $e');
+      rethrow;
+    }
+  }
+
   /// Delete a schedule
   Future<void> deleteSchedule(String id) async {
     try {

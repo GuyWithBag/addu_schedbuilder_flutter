@@ -7,12 +7,14 @@ class SavedScheduleCard extends StatelessWidget {
   final SavedSchedule schedule;
   final VoidCallback onTap;
   final VoidCallback onDelete;
+  final VoidCallback? onShare;
 
   const SavedScheduleCard({
     super.key,
     required this.schedule,
     required this.onTap,
     required this.onDelete,
+    this.onShare,
   });
 
   @override
@@ -31,7 +33,7 @@ class SavedScheduleCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header with name and delete button
+              // Header with name and action buttons
               Row(
                 children: [
                   Expanded(
@@ -42,6 +44,13 @@ class SavedScheduleCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (onShare != null)
+                    IconButton(
+                      icon: const Icon(Icons.qr_code_2),
+                      onPressed: onShare,
+                      tooltip: 'Share via QR',
+                      color: theme.colorScheme.primary,
+                    ),
                   IconButton(
                     icon: const Icon(Icons.delete_outline),
                     onPressed: onDelete,

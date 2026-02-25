@@ -62,9 +62,9 @@ A Flutter schedule builder app that parses text schedules, visualizes them in a 
 #### Future Enhancements
 4. **Class notes functionality** - Models exist, need UI implementation
 5. **Notifications** - Service defined but not implemented
-6. **QR code sharing** - Package installed but not used
-7. **Home screen widget** - For Android/iOS home screens
-8. **Schedule comparison** - Compare multiple schedules to find common free time
+6. ✅ **QR code sharing** - COMPLETED with gzip compression
+7. ✅ **Home screen widget** - COMPLETED for Android/iOS
+8. ✅ **Schedule comparison** - COMPLETED with free time detection
 
 ---
 

@@ -413,10 +413,21 @@ class SettingsScreen extends HookWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error picking image: $e'),
-            behavior: SnackBarBehavior.floating,
+        final errorMessage = e.toString().toLowerCase().contains('zenity')
+            ? 'Error: zenity is not installed.\n\nTo fix this on Linux, run:\nsudo apt install zenity\n\nor use: sudo pacman -S zenity (Arch)\nor: sudo dnf install zenity (Fedora)'
+            : 'Error picking image: $e';
+
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Image Picker Error'),
+            content: SelectableText(errorMessage),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
           ),
         );
       }

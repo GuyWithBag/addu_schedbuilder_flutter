@@ -12,6 +12,7 @@ import 'domain/models/theme_preset.dart';
 import 'domain/models/class_note.dart';
 import 'domain/models/note_type.dart';
 import 'domain/models/notification_config.dart';
+import 'domain/models/table_theme.dart';
 
 @GenerateAdapters([
   AdapterSpec<Time>(),
@@ -30,5 +31,6 @@ import 'domain/models/notification_config.dart';
   AdapterSpec<BarSlot>(),
   AdapterSpec<EmptySlot>(),
   AdapterSpec<ColorData>(),
+  AdapterSpec<TableTheme>(),
 ])
 part 'hive_adapters.g.dart';

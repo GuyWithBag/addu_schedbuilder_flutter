@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
 import '../providers/display_config_provider.dart';
+import '../providers/table_theme_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../domain/models/time.dart';
 import '../../domain/models/weekday.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:file_picker/file_picker.dart';
+import '../widgets/save_table_theme_dialog.dart';
+import 'table_themes_screen.dart';
 
 /// Settings screen for app configuration
 class SettingsScreen extends HookWidget {
@@ -166,6 +169,28 @@ class SettingsScreen extends HookWidget {
             title: const Text('Weekday Colors'),
             subtitle: const Text('Customize column colors'),
             onTap: () => _showWeekdayColorPicker(context, displayConfig),
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.save),
+            title: const Text('Save Current Theme'),
+            subtitle: const Text('Save table customizations as a theme'),
+            onTap: () => _showSaveThemeDialog(context, displayConfig),
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.palette),
+            title: const Text('Manage Saved Themes'),
+            subtitle: const Text('View and apply saved themes'),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const TableThemesScreen(),
+                ),
+              );
+            },
           ),
 
           ListTile(
@@ -406,6 +431,55 @@ class SettingsScreen extends HookWidget {
       context: context,
       builder: (context) =>
           _WeekdayColorPickerDialog(displayConfig: displayConfig),
+    );
+  }
+
+  void _showSaveThemeDialog(
+    BuildContext context,
+    DisplayConfigProvider displayConfig,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => SaveTableThemeDialog(
+        onSave: (name) async {
+          final themeProvider = context.read<TableThemeProvider>();
+          try {
+            await themeProvider.saveTheme(
+              name: name,
+              displayConfig: displayConfig,
+            );
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Theme "$name" saved'),
+                  behavior: SnackBarBehavior.floating,
+                  action: SnackBarAction(
+                    label: 'View',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const TableThemesScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              );
+            }
+          } catch (e) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Error saving theme: $e'),
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                ),
+              );
+            }
+          }
+        },
+      ),
     );
   }
 }

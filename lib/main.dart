@@ -5,10 +5,12 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'data/local/hive_setup.dart';
 import 'data/repositories/schedule_repository_impl.dart';
 import 'data/repositories/notes_repository_impl.dart';
+import 'data/repositories/table_theme_repository_impl.dart';
 import 'presentation/providers/display_config_provider.dart';
 import 'presentation/providers/saved_schedules_provider.dart';
 import 'presentation/providers/schedule_provider.dart';
 import 'presentation/providers/notes_provider.dart';
+import 'presentation/providers/table_theme_provider.dart';
 import 'presentation/screens/home_screen.dart';
 
 void main() async {
@@ -20,6 +22,7 @@ void main() async {
   // Create repositories
   final scheduleRepo = ScheduleRepositoryImpl();
   final notesRepo = NotesRepositoryImpl();
+  final tableThemeRepo = TableThemeRepositoryImpl();
 
   runApp(
     MultiProvider(
@@ -31,6 +34,9 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => NotesProvider(repository: notesRepo),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => TableThemeProvider(repository: tableThemeRepo),
         ),
       ],
       child: const MyApp(),

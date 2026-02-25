@@ -19,6 +19,7 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(SavedScheduleAdapter());
     registerAdapter(ScheduleRowAdapter());
     registerAdapter(ScheduleTableAdapter());
+    registerAdapter(TableThemeAdapter());
     registerAdapter(TeacherAdapter());
     registerAdapter(ThemePresetAdapter());
     registerAdapter(TimeAdapter());
@@ -40,6 +41,7 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
     registerAdapter(SavedScheduleAdapter());
     registerAdapter(ScheduleRowAdapter());
     registerAdapter(ScheduleTableAdapter());
+    registerAdapter(TableThemeAdapter());
     registerAdapter(TeacherAdapter());
     registerAdapter(ThemePresetAdapter());
     registerAdapter(TimeAdapter());

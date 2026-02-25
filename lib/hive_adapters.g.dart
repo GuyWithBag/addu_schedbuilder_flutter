@@ -701,3 +701,58 @@ class ColorDataAdapter extends TypeAdapter<ColorData> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
+
+class TableThemeAdapter extends TypeAdapter<TableTheme> {
+  @override
+  final typeId = 16;
+
+  @override
+  TableTheme read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return TableTheme(
+      id: fields[0] as String,
+      name: fields[1] as String,
+      createdAt: fields[2] as DateTime,
+      tableBorderColor: fields[3] as ColorData,
+      tableBackgroundColor: fields[4] as ColorData,
+      cornerRadius: (fields[5] as num).toDouble(),
+      backgroundImagePath: fields[6] as String?,
+      weekdayColors: (fields[7] as Map).cast<Weekday, ColorData>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, TableTheme obj) {
+    writer
+      ..writeByte(8)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.name)
+      ..writeByte(2)
+      ..write(obj.createdAt)
+      ..writeByte(3)
+      ..write(obj.tableBorderColor)
+      ..writeByte(4)
+      ..write(obj.tableBackgroundColor)
+      ..writeByte(5)
+      ..write(obj.cornerRadius)
+      ..writeByte(6)
+      ..write(obj.backgroundImagePath)
+      ..writeByte(7)
+      ..write(obj.weekdayColors);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TableThemeAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}

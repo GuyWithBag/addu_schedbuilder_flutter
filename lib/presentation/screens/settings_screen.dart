@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import '../providers/display_config_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../domain/models/time.dart';
+import '../../domain/models/weekday.dart';
+import 'package:flex_color_picker/flex_color_picker.dart';
+import 'package:file_picker/file_picker.dart';
 
 /// Settings screen for app configuration
 class SettingsScreen extends HookWidget {
@@ -69,6 +72,117 @@ class SettingsScreen extends HookWidget {
                   )
                 : null,
             onTap: () => _showTimeRangePicker(context, displayConfig),
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.color_lens),
+            title: const Text('Table Border Color'),
+            trailing: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: displayConfig.tableBorderColor,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.grey),
+              ),
+            ),
+            onTap: () => _showColorPicker(
+              context,
+              'Table Border Color',
+              displayConfig.tableBorderColor,
+              (color) => displayConfig.updateTableBorderColor(color),
+            ),
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.format_color_fill),
+            title: const Text('Table Background Color'),
+            trailing: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: displayConfig.tableBackgroundColor,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.grey),
+              ),
+            ),
+            onTap: () => _showColorPicker(
+              context,
+              'Table Background Color',
+              displayConfig.tableBackgroundColor,
+              (color) => displayConfig.updateTableBackgroundColor(color),
+            ),
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.rounded_corner),
+            title: const Text('Corner Radius'),
+            subtitle: Text(
+              '${displayConfig.cornerRadius.toStringAsFixed(0)} px',
+            ),
+            trailing: SizedBox(
+              width: 150,
+              child: Slider(
+                value: displayConfig.cornerRadius,
+                min: 0,
+                max: 30,
+                divisions: 30,
+                label: displayConfig.cornerRadius.toStringAsFixed(0),
+                onChanged: (value) {
+                  displayConfig.updateCornerRadius(value);
+                },
+              ),
+            ),
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.image),
+            title: const Text('Background Image'),
+            subtitle: Text(
+              displayConfig.backgroundImagePath != null
+                  ? 'Image selected'
+                  : 'No image',
+            ),
+            trailing: displayConfig.backgroundImagePath != null
+                ? IconButton(
+                    icon: const Icon(Icons.clear),
+                    tooltip: 'Remove image',
+                    onPressed: () {
+                      displayConfig.clearBackgroundImage();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Background image removed'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                  )
+                : null,
+            onTap: () => _pickBackgroundImage(context, displayConfig),
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.calendar_today),
+            title: const Text('Weekday Colors'),
+            subtitle: const Text('Customize column colors'),
+            onTap: () => _showWeekdayColorPicker(context, displayConfig),
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.restore),
+            title: const Text('Reset Table Customizations'),
+            subtitle: const Text('Restore default appearance'),
+            textColor: Colors.orange,
+            iconColor: Colors.orange,
+            onTap: () {
+              displayConfig.resetTableCustomizations();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Table customizations reset to defaults'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
           ),
 
           const Divider(),
@@ -208,6 +322,92 @@ class SettingsScreen extends HookWidget {
           _TimeRangePickerDialog(displayConfig: displayConfig),
     );
   }
+
+  void _showColorPicker(
+    BuildContext context,
+    String title,
+    Color currentColor,
+    Function(Color) onColorChanged,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: SingleChildScrollView(
+          child: ColorPicker(
+            color: currentColor,
+            onColorChanged: onColorChanged,
+            pickersEnabled: const {
+              ColorPickerType.both: false,
+              ColorPickerType.primary: true,
+              ColorPickerType.accent: true,
+              ColorPickerType.wheel: true,
+            },
+            enableOpacity: true,
+            showColorCode: true,
+            colorCodeHasColor: true,
+            width: 44,
+            height: 44,
+            borderRadius: 4,
+            heading: Text(
+              'Select color',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickBackgroundImage(
+    BuildContext context,
+    DisplayConfigProvider displayConfig,
+  ) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false,
+      );
+
+      if (result != null && result.files.single.path != null) {
+        displayConfig.setBackgroundImage(result.files.single.path);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Background image set'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error picking image: $e'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showWeekdayColorPicker(
+    BuildContext context,
+    DisplayConfigProvider displayConfig,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) =>
+          _WeekdayColorPickerDialog(displayConfig: displayConfig),
+    );
+  }
 }
 
 /// Time range picker dialog
@@ -321,6 +521,122 @@ class _TimeRangePickerDialogState extends State<_TimeRangePickerDialog> {
           child: const Text('Apply'),
         ),
       ],
+    );
+  }
+}
+
+/// Weekday color picker dialog
+class _WeekdayColorPickerDialog extends StatelessWidget {
+  final DisplayConfigProvider displayConfig;
+
+  const _WeekdayColorPickerDialog({required this.displayConfig});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 500, maxHeight: 600),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Weekday Column Colors',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Customize the background color for each weekday column',
+              ),
+              const SizedBox(height: 24),
+              Expanded(
+                child: ListView(
+                  children: Weekday.values.map((weekday) {
+                    return ListTile(
+                      leading: Icon(
+                        Icons.calendar_today,
+                        color: displayConfig.weekdayColors[weekday],
+                      ),
+                      title: Text(weekday.fullName),
+                      trailing: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: displayConfig.weekdayColors[weekday],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey),
+                        ),
+                      ),
+                      onTap: () {
+                        _showWeekdayColorPicker(
+                          context,
+                          weekday,
+                          displayConfig,
+                        );
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showWeekdayColorPicker(
+    BuildContext context,
+    Weekday weekday,
+    DisplayConfigProvider displayConfig,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('${weekday.fullName} Column Color'),
+        content: SingleChildScrollView(
+          child: ColorPicker(
+            color: displayConfig.weekdayColors[weekday]!,
+            onColorChanged: (color) {
+              displayConfig.updateWeekdayColor(weekday, color);
+            },
+            pickersEnabled: const {
+              ColorPickerType.both: false,
+              ColorPickerType.primary: true,
+              ColorPickerType.accent: true,
+              ColorPickerType.wheel: true,
+            },
+            enableOpacity: true,
+            showColorCode: true,
+            colorCodeHasColor: true,
+            width: 44,
+            height: 44,
+            borderRadius: 4,
+            heading: Text(
+              'Select color',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -60,8 +60,8 @@ A Flutter schedule builder app that parses text schedules, visualizes them in a 
 3. **Implement semester filtering** - Wire up the filter logic in SavedSchedulesScreen
 
 #### Future Enhancements
-4. **Class notes functionality** - Models exist, need UI implementation
-5. **Notifications** - Service defined but not implemented
+4. ✅ **Class notes functionality** - Models exist, need UI implementation
+5. ✅ **Notifications** - Service defined but not implemented
 6. ✅ **QR code sharing** - COMPLETED with gzip compression
 7. ✅ **Home screen widget** - COMPLETED for Android/iOS
 8. ✅ **Schedule comparison** - COMPLETED with free time detection

@@ -6,6 +6,7 @@ import '../providers/schedule_provider.dart';
 import '../widgets/saved_schedule_card.dart';
 import '../../domain/services/color_service.dart';
 import '../../domain/models/theme_preset.dart';
+import 'comparison_screen.dart';
 
 /// Screen displaying all saved schedules
 class SavedSchedulesScreen extends HookWidget {
@@ -38,6 +39,19 @@ class SavedSchedulesScreen extends HookWidget {
       appBar: AppBar(
         title: const Text('Saved Schedules'),
         actions: [
+          if (allSchedules.length >= 2)
+            IconButton(
+              icon: const Icon(Icons.compare_arrows),
+              tooltip: 'Compare Schedules',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ComparisonScreen(),
+                  ),
+                );
+              },
+            ),
           if (allSchedules.isNotEmpty)
             PopupMenuButton<String>(
               icon: Icon(

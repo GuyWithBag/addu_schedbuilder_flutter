@@ -11,6 +11,7 @@ import 'presentation/providers/saved_schedules_provider.dart';
 import 'presentation/providers/schedule_provider.dart';
 import 'presentation/providers/notes_provider.dart';
 import 'presentation/providers/table_theme_provider.dart';
+import 'presentation/providers/comparison_provider.dart';
 import 'presentation/screens/home_screen.dart';
 
 void main() async {
@@ -38,6 +39,7 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => TableThemeProvider(repository: tableThemeRepo),
         ),
+        ChangeNotifierProvider(create: (_) => ComparisonProvider()),
       ],
       child: const MyApp(),
     ),

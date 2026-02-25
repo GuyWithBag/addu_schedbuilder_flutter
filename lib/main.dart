@@ -12,6 +12,7 @@ import 'presentation/providers/schedule_provider.dart';
 import 'presentation/providers/notes_provider.dart';
 import 'presentation/providers/table_theme_provider.dart';
 import 'presentation/providers/comparison_provider.dart';
+import 'presentation/providers/widget_provider.dart';
 import 'presentation/screens/home_screen.dart';
 
 void main() async {
@@ -40,6 +41,7 @@ void main() async {
           create: (_) => TableThemeProvider(repository: tableThemeRepo),
         ),
         ChangeNotifierProvider(create: (_) => ComparisonProvider()),
+        ChangeNotifierProvider(create: (_) => WidgetProvider()),
       ],
       child: const MyApp(),
     ),

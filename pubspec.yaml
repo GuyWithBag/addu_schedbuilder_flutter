@@ -48,7 +48,6 @@ dependencies:
 
   # Export & File Operations
   screenshot: ^3.0.0
-  image_gallery_saver: ^2.0.3
   pdf: ^3.11.1
   printing: ^5.13.3
 

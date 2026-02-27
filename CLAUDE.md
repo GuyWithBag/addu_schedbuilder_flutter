@@ -57,7 +57,6 @@
 | Hive Generator | `hive_ce_generator` | ^1.6.0 | Type adapters |
 | Path Provider | `path_provider` | ^2.1.4 | Storage paths |
 | Screenshot | `screenshot` | ^3.0.0 | Capture widgets |
-| Image Gallery | `image_gallery_saver` | ^2.0.3 | Save images |
 | PDF Generation | `pdf` | ^3.11.1 | Create PDFs |
 | PDF Printing | `printing` | ^5.13.3 | Print/save PDFs |
 | Calendar Export | `icalendar` | ^0.3.0 | .ics files |

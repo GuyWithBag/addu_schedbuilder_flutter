@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import '../../domain/models/class_note.dart';
-import '../../domain/models/note_type.dart';
-import '../../domain/repositories/notes_repository.dart';
+import '../models/class_note.dart';
+import '../models/note_type.dart';
+import '../repositories/notes_repository.dart';
 
 /// Provider for managing class notes
 class NotesProvider extends ChangeNotifier {

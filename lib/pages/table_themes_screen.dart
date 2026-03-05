@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
 import '../providers/table_theme_provider.dart';
 import '../providers/display_config_provider.dart';
-import '../../domain/models/table_theme.dart';
+import '../models/table_theme.dart';
 
 /// Screen for managing saved table themes
 class TableThemesScreen extends HookWidget {

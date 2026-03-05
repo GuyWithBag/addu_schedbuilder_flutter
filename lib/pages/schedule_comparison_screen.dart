@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import '../../domain/models/saved_schedule.dart';
-import '../../domain/models/time_block.dart';
-import '../../domain/models/time.dart';
-import '../../domain/models/weekday.dart';
-import '../../domain/services/schedule_comparison_service.dart';
+import '../models/saved_schedule.dart';
+import '../models/time_block.dart';
+import '../models/time.dart';
+import '../models/weekday.dart';
+import '../services/schedule_comparison_service.dart';
 
 /// Screen for comparing multiple schedules
 class ScheduleComparisonScreen extends HookWidget {

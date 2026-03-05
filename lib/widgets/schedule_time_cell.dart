@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../domain/models/time.dart';
+import '../models/time.dart';
 
 /// Widget for displaying time in the left column of the schedule
 class ScheduleTimeCell extends StatelessWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import '../../domain/models/saved_schedule.dart';
+import '../models/saved_schedule.dart';
 
 /// Dialog for saving the current schedule
 class SaveScheduleDialog extends HookWidget {

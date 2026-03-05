@@ -1,18 +1,18 @@
 import 'package:hive_ce/hive.dart';
-import 'domain/models/time.dart';
-import 'domain/models/weekday.dart';
-import 'domain/models/class_period.dart';
-import 'domain/models/teacher.dart';
-import 'domain/models/class_data.dart';
-import 'domain/models/time_slot.dart';
-import 'domain/models/schedule_row.dart';
-import 'domain/models/schedule_table.dart';
-import 'domain/models/saved_schedule.dart';
-import 'domain/models/theme_preset.dart';
-import 'domain/models/class_note.dart';
-import 'domain/models/note_type.dart';
-import 'domain/models/notification_config.dart';
-import 'domain/models/table_theme.dart';
+import 'models/time.dart';
+import 'models/weekday.dart';
+import 'models/class_period.dart';
+import 'models/teacher.dart';
+import 'models/class_data.dart';
+import 'models/time_slot.dart';
+import 'models/schedule_row.dart';
+import 'models/schedule_table.dart';
+import 'models/saved_schedule.dart';
+import 'models/theme_preset.dart';
+import 'models/class_note.dart';
+import 'models/note_type.dart';
+import 'models/notification_config.dart';
+import 'models/table_theme.dart';
 
 @GenerateAdapters([
   AdapterSpec<Time>(),

@@ -1,11 +1,11 @@
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
-import '../../hive_adapters.dart';
-import '../../domain/models/class_note.dart';
-import '../../domain/models/notification_config.dart';
-import '../../domain/models/saved_schedule.dart';
-import '../../domain/models/theme_preset.dart';
-import '../../domain/models/table_theme.dart';
+import '../hive_adapters.dart';
+import '../models/class_note.dart';
+import '../models/notification_config.dart';
+import '../models/saved_schedule.dart';
+import '../models/theme_preset.dart';
+import '../models/table_theme.dart';
 
 /// Initialize Hive CE with all type adapters
 Future<void> initHive() async {

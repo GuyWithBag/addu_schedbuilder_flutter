@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../domain/models/saved_schedule.dart';
+import '../models/saved_schedule.dart';
 import 'package:intl/intl.dart';
 
 /// Card widget for displaying a saved schedule in the list

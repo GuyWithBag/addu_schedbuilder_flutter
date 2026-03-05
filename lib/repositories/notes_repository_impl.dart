@@ -1,6 +1,6 @@
 import 'package:hive_ce/hive.dart';
-import '../../domain/models/class_note.dart';
-import '../../domain/repositories/notes_repository.dart';
+import '../models/class_note.dart';
+import './notes_repository.dart';
 
 /// Hive-based implementation of NotesRepository
 class NotesRepositoryImpl implements NotesRepository {

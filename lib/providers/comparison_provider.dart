@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../domain/models/saved_schedule.dart';
-import '../../domain/models/time_block.dart';
-import '../../domain/services/schedule_comparison_service.dart';
+import '../models/saved_schedule.dart';
+import '../models/time_block.dart';
+import '../services/schedule_comparison_service.dart';
 
 /// Provider for managing schedule comparison
 class ComparisonProvider extends ChangeNotifier {

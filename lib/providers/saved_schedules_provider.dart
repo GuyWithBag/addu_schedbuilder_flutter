@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import '../../domain/models/saved_schedule.dart';
-import '../../domain/models/schedule_table.dart';
-import '../../domain/models/theme_preset.dart';
-import '../../domain/repositories/schedule_repository.dart';
-import '../../domain/services/color_service.dart';
+import '../models/saved_schedule.dart';
+import '../models/schedule_table.dart';
+import '../models/theme_preset.dart';
+import '../repositories/schedule_repository.dart';
+import '../services/color_service.dart';
 
 /// Provider for managing saved schedules
 class SavedSchedulesProvider extends ChangeNotifier {

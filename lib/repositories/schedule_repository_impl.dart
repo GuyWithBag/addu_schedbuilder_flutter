@@ -1,7 +1,7 @@
 import 'package:hive_ce/hive.dart';
-import '../../domain/models/saved_schedule.dart';
-import '../../domain/repositories/schedule_repository.dart';
-import '../local/hive_setup.dart';
+import '../models/saved_schedule.dart';
+import './schedule_repository.dart';
+import 'hive_setup.dart';
 
 /// Hive CE implementation of ScheduleRepository
 class ScheduleRepositoryImpl implements ScheduleRepository {

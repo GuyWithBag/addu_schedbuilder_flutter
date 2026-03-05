@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../domain/models/saved_schedule.dart';
-import '../../domain/services/widget_service.dart';
+import '../models/saved_schedule.dart';
+import '../services/widget_service.dart';
 
 /// Provider for managing home screen widget updates
 class WidgetProvider extends ChangeNotifier {

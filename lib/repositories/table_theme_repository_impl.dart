@@ -1,6 +1,6 @@
 import 'package:hive_ce/hive.dart';
-import '../../domain/models/table_theme.dart';
-import '../../domain/repositories/table_theme_repository.dart';
+import '../models/table_theme.dart';
+import './table_theme_repository.dart';
 
 /// Hive CE implementation of TableThemeRepository
 class TableThemeRepositoryImpl implements TableThemeRepository {

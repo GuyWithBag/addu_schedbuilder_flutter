@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
-import '../../domain/models/class_data.dart';
-import '../../domain/models/class_note.dart';
-import '../../domain/models/note_type.dart';
+import '../models/class_data.dart';
+import '../models/class_note.dart';
+import '../models/note_type.dart';
 import '../providers/notes_provider.dart';
 
 /// Dialog for managing notes for a specific class

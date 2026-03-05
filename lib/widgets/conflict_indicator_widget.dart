@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
-import '../../domain/models/conflict_info.dart';
-import '../../domain/models/schedule_table.dart';
-import '../../domain/models/weekday.dart';
-import '../../domain/services/conflict_detection_service.dart';
+import '../models/conflict_info.dart';
+import '../models/schedule_table.dart';
+import '../models/weekday.dart';
+import '../services/conflict_detection_service.dart';
 import '../providers/display_config_provider.dart';
 
 /// Widget for displaying schedule conflicts

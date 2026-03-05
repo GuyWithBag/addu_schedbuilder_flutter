@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**SchedBuilder** is a Flutter application that helps students parse, visualize, and manage their class schedules. The app uses clean architecture principles with a three-layer structure (Presentation/Domain/Data).
+**SchedBuilder** is a Flutter application that helps students parse, visualize, and manage their class schedules. The app uses a simplified flat folder structure with `models/`, `services/`, `repositories/`, `providers/`, `pages/`, and `widgets/`.
 
 **Current Status:** Phase 1 Complete (Dependencies + Domain Models)
 - ✅ All dependencies added to `pubspec.yaml`
@@ -16,29 +16,15 @@
 ## Architecture
 
 ```
-┌─────────────────────────────────────┐
-│     PRESENTATION LAYER              │
-│  (Flutter Widgets + Providers)      │
-│  - Widgets (hooks-based)            │
-│  - ChangeNotifier providers         │
-│  - UI state management              │
-└──────────────┬──────────────────────┘
-               │
-┌──────────────▼──────────────────────┐
-│       DOMAIN LAYER                  │
-│    (Pure Dart - No Flutter)         │
-│  - Models (freezed)                 │
-│  - Services (stateless)             │
-│  - Repository interfaces            │
-└──────────────┬──────────────────────┘
-               │
-┌──────────────▼──────────────────────┐
-│        DATA LAYER                   │
-│   (Hive Persistence)                │
-│  - Repository implementations       │
-│  - Hive adapters                    │
-│  - Local storage                    │
-└─────────────────────────────────────┘
+lib/
+├── models/        — Data classes (JSON-serializable, Hive-annotated)
+├── services/      — Stateless business logic (static methods)
+├── repositories/  — Persistence interfaces + Hive implementations + setup
+├── providers/     — ChangeNotifier state management
+├── pages/         — Full-screen UI (screens)
+├── widgets/       — Reusable UI components
+├── main.dart      — App entry point
+└── hive_adapters.dart — Hive type adapter registrations
 ```
 
 ---
@@ -92,7 +78,7 @@
 
 ### Model Files
 
-All models are in `lib/domain/models/`:
+All models are in `lib/models/`:
 
 1. **`time.dart`** ✅
    - Properties: `hour`, `minute`
@@ -147,7 +133,7 @@ All models are in `lib/domain/models/`:
 
 ## Domain Services (Next Phase - To Implement)
 
-All services are stateless with static methods in `lib/domain/services/`:
+All services are stateless with static methods in `lib/services/`:
 
 ### 1. `parser_service.dart` 🔲
 **Purpose:** Parse text input into ClassData objects
@@ -322,7 +308,7 @@ static List<ClassData> getTodayClasses(ScheduleTable table)
 
 ## Data Layer (To Implement)
 
-### Repository Interface: `lib/domain/repositories/schedule_repository.dart` 🔲
+### Repository Interface: `lib/repositories/schedule_repository.dart` 🔲
 
 ```dart
 abstract class ScheduleRepository {
@@ -335,7 +321,7 @@ abstract class ScheduleRepository {
 }
 ```
 
-### Repository Implementation: `lib/data/repositories/schedule_repository_impl.dart` 🔲
+### Repository Implementation: `lib/repositories/schedule_repository_impl.dart` 🔲
 
 Uses Hive CE:
 ```dart
@@ -355,7 +341,7 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
 }
 ```
 
-### Hive Setup: `lib/data/local/hive_setup.dart` 🔲
+### Hive Setup: `lib/repositories/hive_setup.dart` 🔲
 
 ```dart
 Future<void> initHive() async {
@@ -388,7 +374,7 @@ Future<void> initHive() async {
 
 ## Presentation Layer (To Implement)
 
-### Providers (`lib/presentation/providers/`)
+### Providers (`lib/providers/`)
 
 All providers extend `ChangeNotifier`:
 
@@ -424,7 +410,7 @@ All providers extend `ChangeNotifier`:
    - State: `query`, `searchResults`
    - Methods: `search()`, `filterByRoom()`, `filterByTeacher()`
 
-### Screens (`lib/presentation/screens/`)
+### Pages (`lib/pages/`)
 
 1. **`home_screen.dart`** 🔲
    - Bottom navigation with PageView
@@ -467,7 +453,7 @@ All providers extend `ChangeNotifier`:
    - Home widget config
    - Export/import backup
 
-### Key Widgets (`lib/presentation/widgets/`)
+### Key Widgets (`lib/widgets/`)
 
 **Input Widgets:**
 - `schedule_input_field.dart` - Multiline text field with paste button
@@ -791,7 +777,7 @@ Parser will extract:
 - **Material 3** - Use NavigationBar, not BottomNavigationBar
 - **Hooks** - Use flutter_hooks in all widgets to reduce boilerplate
 - **Offline-first** - All data stored locally, no cloud sync
-- **Clean architecture** - Domain layer has no Flutter dependencies
+- **Models & services** - Keep models and services free of Flutter dependencies where possible
 
 ---
 
@@ -800,59 +786,75 @@ Parser will extract:
 ```
 lib/
 ├── main.dart
-├── domain/
-│   ├── models/
-│   │   ├── time.dart ✅
-│   │   ├── weekday.dart ✅
-│   │   ├── class_period.dart ✅
-│   │   ├── teacher.dart ✅
-│   │   ├── class_data.dart ✅
-│   │   ├── time_slot.dart ✅
-│   │   ├── schedule_row.dart ✅
-│   │   ├── schedule_table.dart ✅
-│   │   ├── saved_schedule.dart ✅
-│   │   ├── theme_preset.dart ✅
-│   │   ├── class_note.dart ✅
-│   │   ├── notification_config.dart ✅
-│   │   └── conflict_info.dart ✅
-│   ├── services/
-│   │   ├── parser_service.dart 🔲
-│   │   ├── arranger_service.dart 🔲
-│   │   ├── color_service.dart 🔲
-│   │   ├── conflict_detection_service.dart 🔲
-│   │   ├── export_service.dart 🔲
-│   │   ├── statistics_service.dart 🔲
-│   │   ├── notification_service.dart 🔲
-│   │   ├── share_service.dart 🔲
-│   │   └── widget_service.dart 🔲
-│   └── repositories/
-│       ├── schedule_repository.dart 🔲
-│       └── notes_repository.dart 🔲
-├── data/
-│   ├── repositories/
-│   │   ├── schedule_repository_impl.dart 🔲
-│   │   └── notes_repository_impl.dart 🔲
-│   └── local/
-│       └── hive_setup.dart 🔲
-└── presentation/
-    ├── providers/
-    │   ├── schedule_provider.dart 🔲
-    │   ├── display_config_provider.dart 🔲
-    │   ├── saved_schedules_provider.dart 🔲
-    │   ├── notification_provider.dart 🔲
-    │   ├── comparison_provider.dart 🔲
-    │   ├── theme_preset_provider.dart 🔲
-    │   ├── notes_provider.dart 🔲
-    │   └── search_provider.dart 🔲
-    ├── screens/
-    │   ├── home_screen.dart 🔲
-    │   ├── input_screen.dart 🔲
-    │   ├── schedule_screen.dart 🔲
-    │   ├── saved_schedules_screen.dart 🔲
-    │   ├── compare_schedules_screen.dart 🔲
-    │   └── settings_screen.dart 🔲
-    └── widgets/
-        ├── [23 widget files to be created] 🔲
+├── hive_adapters.dart
+├── models/
+│   ├── time.dart ✅
+│   ├── weekday.dart ✅
+│   ├── class_period.dart ✅
+│   ├── teacher.dart ✅
+│   ├── class_data.dart ✅
+│   ├── time_slot.dart ✅
+│   ├── schedule_row.dart ✅
+│   ├── schedule_table.dart ✅
+│   ├── saved_schedule.dart ✅
+│   ├── theme_preset.dart ✅
+│   ├── table_theme.dart ✅
+│   ├── class_note.dart ✅
+│   ├── note_type.dart ✅
+│   ├── notification_config.dart ✅
+│   ├── time_block.dart ✅
+│   └── conflict_info.dart ✅
+├── services/
+│   ├── parser_service.dart ✅
+│   ├── arranger_service.dart ✅
+│   ├── color_service.dart ✅
+│   ├── conflict_detection_service.dart ✅
+│   ├── export_service.dart ✅
+│   ├── statistics_service.dart ✅
+│   ├── qr_share_service.dart ✅
+│   ├── schedule_comparison_service.dart ✅
+│   └── widget_service.dart ✅
+├── repositories/
+│   ├── hive_setup.dart ✅
+│   ├── schedule_repository.dart ✅
+│   ├── schedule_repository_impl.dart ✅
+│   ├── notes_repository.dart ✅
+│   ├── notes_repository_impl.dart ✅
+│   ├── table_theme_repository.dart ✅
+│   └── table_theme_repository_impl.dart ✅
+├── providers/
+│   ├── schedule_provider.dart ✅
+│   ├── display_config_provider.dart ✅
+│   ├── saved_schedules_provider.dart ✅
+│   ├── comparison_provider.dart ✅
+│   ├── table_theme_provider.dart ✅
+│   ├── notes_provider.dart ✅
+│   └── widget_provider.dart ✅
+├── pages/
+│   ├── home_screen.dart ✅
+│   ├── input_screen.dart ✅
+│   ├── saved_schedules_screen.dart ✅
+│   ├── settings_screen.dart ✅
+│   ├── comparison_screen.dart ✅
+│   ├── schedule_comparison_screen.dart ✅
+│   ├── table_themes_screen.dart ✅
+│   └── qr_scanner_screen.dart ✅
+└── widgets/
+    ├── schedule_table_widget.dart ✅
+    ├── schedule_class_cell.dart ✅
+    ├── schedule_empty_cell.dart ✅
+    ├── schedule_bar_cell.dart ✅
+    ├── schedule_time_cell.dart ✅
+    ├── class_info_table.dart ✅
+    ├── class_notes_widget.dart ✅
+    ├── class_notes_dialog.dart ✅
+    ├── statistics_widget.dart ✅
+    ├── conflict_indicator_widget.dart ✅
+    ├── export_options_widget.dart ✅
+    ├── qr_share_dialog.dart ✅
+    ├── save_schedule_dialog.dart ✅
+    ├── save_table_theme_dialog.dart ✅
+    └── saved_schedule_card.dart ✅
 ```
 
 ---

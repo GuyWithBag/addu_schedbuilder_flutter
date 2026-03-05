@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import '../../domain/models/saved_schedule.dart';
-import '../../domain/services/qr_share_service.dart';
+import '../models/saved_schedule.dart';
+import '../services/qr_share_service.dart';
 
 /// Dialog for sharing a schedule via QR code
 class QrShareDialog extends StatelessWidget {

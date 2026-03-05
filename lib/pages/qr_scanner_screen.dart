@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
-import '../../domain/services/qr_share_service.dart';
-import '../../domain/models/saved_schedule.dart';
+import '../services/qr_share_service.dart';
+import '../models/saved_schedule.dart';
 import '../providers/saved_schedules_provider.dart';
 import 'schedule_comparison_screen.dart';
 

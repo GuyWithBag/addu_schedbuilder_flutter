@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/comparison_provider.dart';
 import '../providers/saved_schedules_provider.dart';
 import '../providers/display_config_provider.dart';
-import '../../domain/models/weekday.dart';
+import '../models/weekday.dart';
 
 /// Screen for comparing multiple schedules to find common free time
 class ComparisonScreen extends HookWidget {

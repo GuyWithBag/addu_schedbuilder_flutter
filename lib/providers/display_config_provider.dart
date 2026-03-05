@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../domain/models/theme_preset.dart';
-import '../../domain/models/time.dart';
-import '../../domain/models/weekday.dart';
-import '../../domain/services/color_service.dart';
+import '../models/theme_preset.dart';
+import '../models/time.dart';
+import '../models/weekday.dart';
+import '../services/color_service.dart';
 
 /// Provider for managing display configuration (colors, dark mode, time format)
 class DisplayConfigProvider extends ChangeNotifier {

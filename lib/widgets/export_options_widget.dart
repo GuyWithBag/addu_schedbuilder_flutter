@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import '../../domain/models/saved_schedule.dart';
-import '../../domain/services/export_service.dart';
+import '../models/saved_schedule.dart';
+import '../services/export_service.dart';
 
 /// Widget showing export options for a schedule
 class ExportOptionsWidget extends StatelessWidget {

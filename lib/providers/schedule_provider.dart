@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import '../../domain/models/schedule_table.dart';
-import '../../domain/services/arranger_service.dart';
-import '../../domain/services/parser_service.dart';
+import '../models/schedule_table.dart';
+import '../services/arranger_service.dart';
+import '../services/parser_service.dart';
 
 /// Provider for managing the current schedule being created/edited
 class ScheduleProvider extends ChangeNotifier {

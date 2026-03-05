@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../domain/models/class_data.dart';
-import '../../domain/services/color_service.dart';
+import '../models/class_data.dart';
+import '../services/color_service.dart';
 import '../providers/notes_provider.dart';
 import 'class_notes_dialog.dart';
 

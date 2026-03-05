@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/display_config_provider.dart';
 import '../providers/saved_schedules_provider.dart';
 import '../providers/schedule_provider.dart';
@@ -35,6 +36,14 @@ class InputScreen extends HookWidget {
       return null;
     }, [scheduleProvider.inputText]);
 
+    final bool hasParsedResult = scheduleProvider.parseResult != null;
+    final bool hasTable =
+        scheduleProvider.scheduleTable != null &&
+        !scheduleProvider.scheduleTable!.isEmpty;
+    final bool isSuccess =
+        hasTable ||
+        (hasParsedResult && scheduleProvider.parseResult!.isSuccess);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('SchedBuilder'),
@@ -54,61 +63,172 @@ class InputScreen extends HookWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Input field
-            TextField(
-              controller: textController,
-              maxLines: 10,
-              decoration: const InputDecoration(
-                labelText: 'Paste Schedule Text',
-                hintText:
-                    'CS101 Computer Science Intro * 8:00 AM - 9:30 AM Room 204 M W F * DOE, JOHN john@example.com 3',
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (value) {
-                scheduleProvider.updateInput(value);
-              },
-            ),
-
-            const SizedBox(height: 16),
-
-            // Parse button
-            ElevatedButton.icon(
-              onPressed: scheduleProvider.isLoading
-                  ? null
-                  : () {
-                      scheduleProvider.parseAndArrange();
-                    },
-              icon: scheduleProvider.isLoading
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.play_arrow),
-              label: Text(
-                scheduleProvider.isLoading ? 'Parsing...' : 'Parse Schedule',
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Results
             Expanded(
-              child: _buildResults(
-                context,
-                scheduleProvider,
-                repaintBoundaryKey,
+              child: TextField(
+                controller: textController,
+                maxLines: null,
+                expands: true,
+                textAlignVertical: TextAlignVertical.top,
+                decoration: const InputDecoration(
+                  labelText: 'Paste Schedule Text',
+                  hintText:
+                      'CS101 Computer Science Intro * 8:00 AM - 9:30 AM Room 204 M W F * DOE, JOHN john@example.com 3',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  scheduleProvider.updateInput(value);
+                },
               ),
             ),
+            const SizedBox(height: 16),
+
+            // Parse button and Theme Edit button row
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: scheduleProvider.isLoading
+                        ? null
+                        : () async {
+                            await scheduleProvider.parseAndArrange();
+                            if (context.mounted) {
+                              _showResultsSheet(
+                                context,
+                                scheduleProvider,
+                                repaintBoundaryKey,
+                              );
+                            }
+                          },
+                    icon: scheduleProvider.isLoading
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.play_arrow),
+                    label: Text(
+                      scheduleProvider.isLoading
+                          ? 'Parsing...'
+                          : 'Parse Schedule',
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton.filledTonal(
+                  onPressed: () {
+                    // TODO: Implement theme editing function
+                  },
+                  icon: const Icon(Icons.color_lens),
+                  tooltip: 'Edit Table Theme',
+                ),
+              ],
+            ),
+
+            // Conditional OutlinedButton for results/error
+            if (hasParsedResult || hasTable) ...[
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: () => _showResultsSheet(
+                  context,
+                  scheduleProvider,
+                  repaintBoundaryKey,
+                ),
+                icon: Icon(
+                  isSuccess ? Icons.check_circle_outline : Icons.error_outline,
+                  color: isSuccess ? Colors.green : Colors.red,
+                ),
+                label: Text(isSuccess ? 'Show Results' : 'Show Error'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: isSuccess
+                      ? Colors.green.shade700
+                      : Colors.red.shade700,
+                  side: BorderSide(
+                    color: isSuccess ? Colors.green : Colors.red,
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
 
-  Widget _buildResults(
+  void _showResultsSheet(
     BuildContext context,
     ScheduleProvider provider,
     GlobalKey repaintBoundaryKey,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (sheetContext) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          minChildSize: 0.5,
+          maxChildSize: 1.0,
+          expand: false,
+          builder: (BuildContext context, ScrollController scrollController) {
+            return Column(
+              children: [
+                // Drag handle and JSON Action
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: 8.0,
+                    right: 8.0,
+                    left: 16.0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Results',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.data_object),
+                            tooltip: 'Show JSON',
+                            onPressed: () {
+                              // TODO: Implement show JSON function
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(),
+                // Results content
+                Expanded(
+                  child: _buildResultsContent(
+                    context,
+                    provider,
+                    repaintBoundaryKey,
+                    scrollController,
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildResultsContent(
+    BuildContext context,
+    ScheduleProvider provider,
+    GlobalKey repaintBoundaryKey,
+    ScrollController scrollController,
   ) {
     final parseResult = provider.parseResult;
     final scheduleTable = provider.scheduleTable;
@@ -120,6 +240,7 @@ class InputScreen extends HookWidget {
         scheduleTable,
         repaintBoundaryKey,
         provider.currentScheduleId != null,
+        scrollController,
       );
     }
 
@@ -135,6 +256,8 @@ class InputScreen extends HookWidget {
 
     if (!parseResult.isSuccess) {
       return SingleChildScrollView(
+        controller: scrollController,
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Card(
           color: Colors.red.shade50,
           child: Padding(
@@ -178,11 +301,15 @@ class InputScreen extends HookWidget {
     ScheduleTable scheduleTable,
     GlobalKey repaintBoundaryKey,
     bool isLoadedSchedule,
+    ScrollController scrollController,
   ) {
     final classes = scheduleTable.getAllClasses();
 
     return SingleChildScrollView(
+      controller: scrollController,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Column(
+        spacing: 16,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Success banner with save button
@@ -257,17 +384,6 @@ class InputScreen extends HookWidget {
               ),
             ),
           ),
-
-          // Conflict Detection
-          const SizedBox(height: 16),
-          ConflictIndicatorWidget(table: scheduleTable),
-
-          // Statistics
-          const SizedBox(height: 16),
-          StatisticsWidget(table: scheduleTable),
-
-          // Class Information Table
-          const SizedBox(height: 16),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -284,6 +400,11 @@ class InputScreen extends HookWidget {
               ),
             ),
           ),
+          // Conflict Detection
+          ConflictIndicatorWidget(table: scheduleTable),
+          // Statistics
+          StatisticsWidget(table: scheduleTable),
+          const SizedBox(height: 24), // Extra bottom padding
         ],
       ),
     );
@@ -299,8 +420,8 @@ class InputScreen extends HookWidget {
           final scheduleProvider = context.read<ScheduleProvider>();
           final savedSchedulesProvider = context.read<SavedSchedulesProvider>();
           final displayConfigProvider = context.read<DisplayConfigProvider>();
-
           final scheduleTable = scheduleProvider.scheduleTable;
+
           if (scheduleTable == null) return;
 
           try {
@@ -423,7 +544,6 @@ class InputScreen extends HookWidget {
         if (!await downloadsDir.exists()) {
           await downloadsDir.create(recursive: true);
         }
-
         final timestamp = DateTime.now().millisecondsSinceEpoch;
         final file = File('${downloadsDir.path}/schedule_$timestamp.png');
         await file.writeAsBytes(bytes);
@@ -507,7 +627,6 @@ class InputScreen extends HookWidget {
         if (!await downloadsDir.exists()) {
           await downloadsDir.create(recursive: true);
         }
-
         final timestamp = DateTime.now().millisecondsSinceEpoch;
         final file = File('${downloadsDir.path}/schedule_$timestamp.pdf');
         await file.writeAsBytes(bytes);
@@ -579,7 +698,6 @@ class InputScreen extends HookWidget {
         if (!await downloadsDir.exists()) {
           await downloadsDir.create(recursive: true);
         }
-
         final timestamp = DateTime.now().millisecondsSinceEpoch;
         final file = File('${downloadsDir.path}/schedule_$timestamp.ics');
         await file.writeAsString(icsString);
@@ -650,7 +768,6 @@ class InputScreen extends HookWidget {
         if (!await downloadsDir.exists()) {
           await downloadsDir.create(recursive: true);
         }
-
         final timestamp = DateTime.now().millisecondsSinceEpoch;
         final file = File('${downloadsDir.path}/schedule_$timestamp.json');
         await file.writeAsString(jsonString);

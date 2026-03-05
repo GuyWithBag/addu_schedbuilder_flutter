@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'main_theme.dart';
 import 'repositories/hive_setup.dart';
 import 'repositories/schedule_repository_impl.dart';
 import 'repositories/notes_repository_impl.dart';
@@ -57,22 +58,10 @@ class MyApp extends HookWidget {
     final isDarkMode = displayConfig.isDarkMode;
 
     return MaterialApp(
-      title: 'SchedBuilder',
+      title: 'Addu Schedule',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.light,
-        ),
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.dark,
-        ),
-      ),
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
       themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
       builder: (context, child) => ResponsiveBreakpoints.builder(
         child: child!,

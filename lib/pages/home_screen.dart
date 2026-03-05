@@ -49,14 +49,14 @@ class _HomeScreenNavigatorState extends State<_HomeScreenNavigator> {
         },
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.edit_outlined),
-            selectedIcon: Icon(Icons.edit),
-            label: 'Input',
-          ),
-          NavigationDestination(
             icon: Icon(Icons.save_outlined),
             selectedIcon: Icon(Icons.save),
             label: 'Saved',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.edit_outlined),
+            selectedIcon: Icon(Icons.edit),
+            label: 'Input',
           ),
           NavigationDestination(
             icon: Icon(Icons.settings_outlined),

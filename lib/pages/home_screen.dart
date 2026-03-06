@@ -24,7 +24,7 @@ class _HomeScreenNavigator extends StatefulWidget {
 }
 
 class _HomeScreenNavigatorState extends State<_HomeScreenNavigator> {
-  int currentIndex = 0;
+  int currentIndex = 1;
 
   void navigateToTab(int index) {
     setState(() {
@@ -35,8 +35,8 @@ class _HomeScreenNavigatorState extends State<_HomeScreenNavigator> {
   @override
   Widget build(BuildContext context) {
     final screens = [
-      const InputScreen(),
       const SavedSchedulesScreen(),
+      const InputScreen(),
       const SettingsScreen(),
     ];
 

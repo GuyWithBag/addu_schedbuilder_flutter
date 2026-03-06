@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:file_picker/file_picker.dart';
 import '../models/saved_schedule.dart';
 import '../services/export_service.dart';
 
@@ -61,12 +60,7 @@ class ExportOptionsWidget extends StatelessWidget {
   Future<void> _exportPNG(BuildContext context) async {
     try {
       final bytes = await ExportService.exportToPNG(repaintBoundaryKey!);
-      await _saveFile(
-        context,
-        bytes,
-        '${schedule.name}_schedule.png',
-        'image/png',
-      );
+      await _saveFile(context, bytes, '${schedule.name}_schedule.png', ['png']);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -97,12 +91,7 @@ class ExportOptionsWidget extends StatelessWidget {
         schedule.name,
       );
 
-      await _saveFile(
-        context,
-        bytes,
-        '${schedule.name}_schedule.pdf',
-        'application/pdf',
-      );
+      await _saveFile(context, bytes, '${schedule.name}_schedule.pdf', ['pdf']);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -130,12 +119,9 @@ class ExportOptionsWidget extends StatelessWidget {
       final jsonString = ExportService.exportToJSON(schedule);
       final bytes = Uint8List.fromList(jsonString.codeUnits);
 
-      await _saveFile(
-        context,
-        bytes,
-        '${schedule.name}_schedule.json',
-        'application/json',
-      );
+      await _saveFile(context, bytes, '${schedule.name}_schedule.json', [
+        'json',
+      ]);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -166,15 +152,12 @@ class ExportOptionsWidget extends StatelessWidget {
 
   Future<void> _shareSchedule(BuildContext context) async {
     try {
-      // Share as JSON for now (could be extended to share PDF/PNG)
       final jsonString = ExportService.exportToJSON(schedule);
-      final directory = await getTemporaryDirectory();
-      final file = File('${directory.path}/${schedule.name}_schedule.json');
-      await file.writeAsString(jsonString);
+      final jsonBytes = Uint8List.fromList(jsonString.codeUnits);
 
-      await Share.shareXFiles([
-        XFile(file.path),
-      ], text: 'Check out my schedule: ${schedule.name}');
+      await _saveFile(context, jsonBytes, '${schedule.name}_schedule.json', [
+        'json',
+      ]);
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -192,19 +175,21 @@ class ExportOptionsWidget extends StatelessWidget {
     BuildContext context,
     Uint8List bytes,
     String filename,
-    String mimeType,
+    List<String> allowedExtensions,
   ) async {
-    try {
-      // For mobile/web, we'll use share_plus to "save"
-      final directory = await getTemporaryDirectory();
-      final file = File('${directory.path}/$filename');
-      await file.writeAsBytes(bytes);
+    final savePath = await FilePicker.platform.saveFile(
+      dialogTitle: 'Save $filename',
+      fileName: filename,
+      type: FileType.custom,
+      allowedExtensions: allowedExtensions,
+      bytes: bytes,
+    );
 
-      await Share.shareXFiles([
-        XFile(file.path, mimeType: mimeType),
-      ], text: 'Exported schedule: ${schedule.name}');
-    } catch (e) {
-      throw Exception('Failed to save file: $e');
+    if (savePath == null) return;
+
+    final file = File(savePath);
+    if (!await file.exists()) {
+      await file.writeAsBytes(bytes);
     }
   }
 }

@@ -6,16 +6,14 @@ import '../providers/display_config_provider.dart';
 import '../providers/saved_schedules_provider.dart';
 import '../providers/schedule_provider.dart';
 import '../widgets/save_schedule_dialog.dart';
-import '../widgets/schedule_table_widget.dart';
-import '../widgets/statistics_widget.dart';
-import '../widgets/conflict_indicator_widget.dart';
-import '../widgets/class_info_table.dart';
+import '../widgets/schedule_results_view.dart';
+import '../widgets/table_theme_dialog.dart';
 import '../services/export_service.dart';
 import '../models/saved_schedule.dart';
-import '../models/schedule_table.dart';
-import 'package:share_plus/share_plus.dart';
+
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+import 'dart:typed_data';
+import 'package:file_picker/file_picker.dart';
 import 'home_screen.dart';
 
 /// Screen for inputting and parsing schedule text
@@ -71,8 +69,12 @@ class InputScreen extends HookWidget {
                 textAlignVertical: TextAlignVertical.top,
                 decoration: const InputDecoration(
                   labelText: 'Paste Schedule Text',
+                  hintMaxLines: 10,
                   hintText:
-                      'CS101 Computer Science Intro * 8:00 AM - 9:30 AM Room 204 M W F * DOE, JOHN john@example.com 3',
+                      '''CS101 Computer Science Introduction to Programming * 8:00 AM - 9:30 AM Room 204 M W F * DOE, JOHN john.doe@example.com 3
+                      MATH201 Mathematics Calculus I * 10:00 AM - 11:30 AM Room 305 T Th * SMITH, JANE jane.smith@example.edu 4
+                      ENG102 English Composition II * 1:00 PM - 2:30 PM Room 101 M W * BROWN, ALICE alice.brown@example.com 3
+                      PHYS101 Physics General Physics I * 3:00 PM - 4:30 PM Room 410 T Th * WILSON, BOB bob.wilson@example.com 4''',
                   border: OutlineInputBorder(),
                 ),
                 onChanged: (value) {
@@ -115,9 +117,7 @@ class InputScreen extends HookWidget {
                 ),
                 const SizedBox(width: 8),
                 IconButton.filledTonal(
-                  onPressed: () {
-                    // TODO: Implement theme editing function
-                  },
+                  onPressed: () => showTableThemeDialog(context),
                   icon: const Icon(Icons.color_lens),
                   tooltip: 'Edit Table Theme',
                 ),
@@ -235,12 +235,21 @@ class InputScreen extends HookWidget {
 
     // If we have a schedule table (either parsed or loaded), show it
     if (scheduleTable != null && !scheduleTable.isEmpty) {
-      return _buildScheduleView(
-        context,
-        scheduleTable,
-        repaintBoundaryKey,
-        provider.currentScheduleId != null,
-        scrollController,
+      return ScheduleResultsView(
+        scheduleTable: scheduleTable,
+        repaintBoundaryKey: repaintBoundaryKey,
+        isLoadedSchedule: provider.currentScheduleId != null,
+        onSave: () => _showSaveDialog(context),
+        onExport: () {
+          final displayConfig = context.read<DisplayConfigProvider>();
+          _showExportOptions(
+            context,
+            scheduleTable,
+            repaintBoundaryKey,
+            displayConfig.classColors,
+          );
+        },
+        scrollController: scrollController,
       );
     }
 
@@ -294,120 +303,6 @@ class InputScreen extends HookWidget {
 
     // This code should never be reached now, but keep it for safety
     return const Center(child: Text('No schedule to display'));
-  }
-
-  Widget _buildScheduleView(
-    BuildContext context,
-    ScheduleTable scheduleTable,
-    GlobalKey repaintBoundaryKey,
-    bool isLoadedSchedule,
-    ScrollController scrollController,
-  ) {
-    final classes = scheduleTable.getAllClasses();
-
-    return SingleChildScrollView(
-      controller: scrollController,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Column(
-        spacing: 16,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Success banner with save button
-          Card(
-            color: isLoadedSchedule
-                ? Colors.blue.shade50
-                : Colors.green.shade50,
-            margin: const EdgeInsets.only(bottom: 16),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
-                children: [
-                  Icon(
-                    isLoadedSchedule ? Icons.folder_open : Icons.check_circle,
-                    color: isLoadedSchedule ? Colors.blue : Colors.green,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      isLoadedSchedule
-                          ? 'Loaded schedule (${classes.length} classes)'
-                          : 'Successfully parsed ${classes.length} classes!',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: isLoadedSchedule
-                            ? Colors.blue.shade900
-                            : Colors.green,
-                      ),
-                    ),
-                  ),
-                  FilledButton.icon(
-                    onPressed: () => _showSaveDialog(context),
-                    icon: const Icon(Icons.save),
-                    label: const Text('Save'),
-                  ),
-                  const SizedBox(width: 8),
-                  FilledButton.tonalIcon(
-                    onPressed: () {
-                      final displayConfig = context
-                          .read<DisplayConfigProvider>();
-                      _showExportOptions(
-                        context,
-                        scheduleTable,
-                        repaintBoundaryKey,
-                        displayConfig.classColors,
-                      );
-                    },
-                    icon: const Icon(Icons.share),
-                    label: const Text('Export'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Schedule Table
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Weekly Schedule',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  RepaintBoundary(
-                    key: repaintBoundaryKey,
-                    child: ScheduleTableWidget(table: scheduleTable),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Class Information',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  ClassInfoTable(scheduleTable: scheduleTable),
-                ],
-              ),
-            ),
-          ),
-          // Conflict Detection
-          ConflictIndicatorWidget(table: scheduleTable),
-          // Statistics
-          StatisticsWidget(table: scheduleTable),
-          const SizedBox(height: 24), // Extra bottom padding
-        ],
-      ),
-    );
   }
 
   void _showSaveDialog(BuildContext context) {
@@ -535,51 +430,28 @@ class InputScreen extends HookWidget {
   Future<void> _exportPNG(BuildContext context, GlobalKey key) async {
     try {
       final bytes = await ExportService.exportToPNG(key);
+      final savePath = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Schedule as PNG',
+        fileName: 'schedule_${DateTime.now().millisecondsSinceEpoch}.png',
+        type: FileType.image,
+        bytes: bytes,
+      );
 
-      // For desktop platforms, save to Downloads folder
-      if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-        final downloadsDir = Directory(
-          '/home/${Platform.environment['USER']}/Downloads',
+      if (savePath == null) return; // User cancelled
+
+      // On some platforms saveFile with bytes doesn't write, so write manually
+      final file = File(savePath);
+      if (!await file.exists()) {
+        await file.writeAsBytes(bytes);
+      }
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Schedule saved to: $savePath'),
+            behavior: SnackBarBehavior.floating,
+          ),
         );
-        if (!await downloadsDir.exists()) {
-          await downloadsDir.create(recursive: true);
-        }
-        final timestamp = DateTime.now().millisecondsSinceEpoch;
-        final file = File('${downloadsDir.path}/schedule_$timestamp.png');
-        await file.writeAsBytes(bytes);
-
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Schedule saved to: ${file.path}'),
-              behavior: SnackBarBehavior.floating,
-              action: SnackBarAction(
-                label: 'Open Folder',
-                onPressed: () {
-                  // User can manually open the Downloads folder
-                },
-              ),
-            ),
-          );
-        }
-      } else {
-        // For mobile, use share
-        final directory = await getTemporaryDirectory();
-        final file = File('${directory.path}/schedule.png');
-        await file.writeAsBytes(bytes);
-
-        await Share.shareXFiles([
-          XFile(file.path, mimeType: 'image/png'),
-        ], text: 'My Schedule');
-
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Schedule exported as PNG!'),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
       }
     } catch (e) {
       if (context.mounted) {
@@ -603,7 +475,6 @@ class InputScreen extends HookWidget {
       // Convert Map<String, ColorSet> to Map<String, Color>
       final colorMap = <String, Color>{};
       classColors.forEach((String key, value) {
-        // value is ColorSet, value.primary is ColorData
         final colorData = value.primary;
         colorMap[key] = Color.fromARGB(
           colorData.alpha,
@@ -619,50 +490,28 @@ class InputScreen extends HookWidget {
         'My Schedule',
       );
 
-      // For desktop platforms, save to Downloads folder
-      if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-        final downloadsDir = Directory(
-          '/home/${Platform.environment['USER']}/Downloads',
+      final savePath = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Schedule as PDF',
+        fileName: 'schedule_${DateTime.now().millisecondsSinceEpoch}.pdf',
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+        bytes: bytes,
+      );
+
+      if (savePath == null) return;
+
+      final file = File(savePath);
+      if (!await file.exists()) {
+        await file.writeAsBytes(bytes);
+      }
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Schedule saved to: $savePath'),
+            behavior: SnackBarBehavior.floating,
+          ),
         );
-        if (!await downloadsDir.exists()) {
-          await downloadsDir.create(recursive: true);
-        }
-        final timestamp = DateTime.now().millisecondsSinceEpoch;
-        final file = File('${downloadsDir.path}/schedule_$timestamp.pdf');
-        await file.writeAsBytes(bytes);
-
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Schedule saved to: ${file.path}'),
-              behavior: SnackBarBehavior.floating,
-              action: SnackBarAction(
-                label: 'Open Folder',
-                onPressed: () {
-                  // User can manually open the Downloads folder
-                },
-              ),
-            ),
-          );
-        }
-      } else {
-        // For mobile, use share
-        final directory = await getTemporaryDirectory();
-        final file = File('${directory.path}/schedule.pdf');
-        await file.writeAsBytes(bytes);
-
-        await Share.shareXFiles([
-          XFile(file.path, mimeType: 'application/pdf'),
-        ], text: 'My Schedule');
-
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Schedule exported as PDF!'),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
       }
     } catch (e) {
       if (context.mounted) {
@@ -679,7 +528,6 @@ class InputScreen extends HookWidget {
 
   Future<void> _exportICS(BuildContext context, scheduleTable) async {
     try {
-      // Default semester dates (current date + 4 months)
       final semesterStart = DateTime.now();
       final semesterEnd = semesterStart.add(const Duration(days: 120));
 
@@ -690,50 +538,29 @@ class InputScreen extends HookWidget {
         semesterEnd: semesterEnd,
       );
 
-      // For desktop platforms, save to Downloads folder
-      if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-        final downloadsDir = Directory(
-          '/home/${Platform.environment['USER']}/Downloads',
+      final icsBytes = Uint8List.fromList(icsString.codeUnits);
+      final savePath = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Schedule as Calendar',
+        fileName: 'schedule_${DateTime.now().millisecondsSinceEpoch}.ics',
+        type: FileType.custom,
+        allowedExtensions: ['ics'],
+        bytes: icsBytes,
+      );
+
+      if (savePath == null) return;
+
+      final file = File(savePath);
+      if (!await file.exists()) {
+        await file.writeAsString(icsString);
+      }
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Calendar saved to: $savePath'),
+            behavior: SnackBarBehavior.floating,
+          ),
         );
-        if (!await downloadsDir.exists()) {
-          await downloadsDir.create(recursive: true);
-        }
-        final timestamp = DateTime.now().millisecondsSinceEpoch;
-        final file = File('${downloadsDir.path}/schedule_$timestamp.ics');
-        await file.writeAsString(icsString);
-
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Calendar file saved to: ${file.path}'),
-              behavior: SnackBarBehavior.floating,
-              action: SnackBarAction(
-                label: 'Open Folder',
-                onPressed: () {
-                  // User can manually open the Downloads folder
-                },
-              ),
-            ),
-          );
-        }
-      } else {
-        // For mobile, use share
-        final directory = await getTemporaryDirectory();
-        final file = File('${directory.path}/schedule.ics');
-        await file.writeAsString(icsString);
-
-        await Share.shareXFiles([
-          XFile(file.path, mimeType: 'text/calendar'),
-        ], text: 'My Schedule - Import to Calendar');
-
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Schedule exported as Calendar file (.ics)!'),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
       }
     } catch (e) {
       if (context.mounted) {
@@ -750,7 +577,6 @@ class InputScreen extends HookWidget {
 
   Future<void> _exportJSON(BuildContext context, scheduleTable) async {
     try {
-      // Create a temporary SavedSchedule for export
       final schedule = SavedSchedule(
         id: 'temp',
         name: 'Exported Schedule',
@@ -759,51 +585,30 @@ class InputScreen extends HookWidget {
       );
 
       final jsonString = ExportService.exportToJSON(schedule);
+      final jsonBytes = Uint8List.fromList(jsonString.codeUnits);
 
-      // For desktop platforms, save to Downloads folder
-      if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-        final downloadsDir = Directory(
-          '/home/${Platform.environment['USER']}/Downloads',
+      final savePath = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Schedule as JSON',
+        fileName: 'schedule_${DateTime.now().millisecondsSinceEpoch}.json',
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        bytes: jsonBytes,
+      );
+
+      if (savePath == null) return;
+
+      final file = File(savePath);
+      if (!await file.exists()) {
+        await file.writeAsString(jsonString);
+      }
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('JSON saved to: $savePath'),
+            behavior: SnackBarBehavior.floating,
+          ),
         );
-        if (!await downloadsDir.exists()) {
-          await downloadsDir.create(recursive: true);
-        }
-        final timestamp = DateTime.now().millisecondsSinceEpoch;
-        final file = File('${downloadsDir.path}/schedule_$timestamp.json');
-        await file.writeAsString(jsonString);
-
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('JSON file saved to: ${file.path}'),
-              behavior: SnackBarBehavior.floating,
-              action: SnackBarAction(
-                label: 'Open Folder',
-                onPressed: () {
-                  // User can manually open the Downloads folder
-                },
-              ),
-            ),
-          );
-        }
-      } else {
-        // For mobile, use share
-        final directory = await getTemporaryDirectory();
-        final file = File('${directory.path}/schedule.json');
-        await file.writeAsString(jsonString);
-
-        await Share.shareXFiles([
-          XFile(file.path, mimeType: 'application/json'),
-        ], text: 'My Schedule (JSON)');
-
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Schedule exported as JSON!'),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
       }
     } catch (e) {
       if (context.mounted) {

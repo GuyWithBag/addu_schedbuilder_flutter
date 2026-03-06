@@ -18,10 +18,14 @@ class ClassNotesDialog extends HookWidget {
     final notes = notesProvider.getNotesForClass(classData.code);
     final textController = useTextEditingController();
     final selectedType = useState(NoteType.general);
+    final editingNote = useState<ClassNote?>(null);
 
     return Dialog(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
+        constraints: BoxConstraints(
+          maxWidth: 600,
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
+        ),
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
@@ -62,121 +66,155 @@ class ClassNotesDialog extends HookWidget {
 
               const Divider(height: 32),
 
-              // Add note section
-              Text(
-                'Add Note',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
+              // Add/Edit note section
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        editingNote.value != null ? 'Edit Note' : 'Add Note',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 12),
 
-              // Note type selector
-              SegmentedButton<NoteType>(
-                segments: const [
-                  ButtonSegment(
-                    value: NoteType.general,
-                    label: Text('General'),
-                    icon: Icon(Icons.note_outlined),
-                  ),
-                  ButtonSegment(
-                    value: NoteType.homework,
-                    label: Text('Homework'),
-                    icon: Icon(Icons.assignment_outlined),
-                  ),
-                  ButtonSegment(
-                    value: NoteType.exam,
-                    label: Text('Exam'),
-                    icon: Icon(Icons.quiz_outlined),
-                  ),
-                ],
-                selected: {selectedType.value},
-                onSelectionChanged: (Set<NoteType> newSelection) {
-                  selectedType.value = newSelection.first;
-                },
-              ),
+                      // Note type selector
+                      SegmentedButton<NoteType>(
+                        segments: const [
+                          ButtonSegment(
+                            value: NoteType.general,
+                            label: Text('General'),
+                            icon: Icon(Icons.note_outlined),
+                          ),
+                          ButtonSegment(
+                            value: NoteType.homework,
+                            label: Text('Homework'),
+                            icon: Icon(Icons.assignment_outlined),
+                          ),
+                          ButtonSegment(
+                            value: NoteType.exam,
+                            label: Text('Exam'),
+                            icon: Icon(Icons.quiz_outlined),
+                          ),
+                        ],
+                        selected: {selectedType.value},
+                        onSelectionChanged: (Set<NoteType> newSelection) {
+                          selectedType.value = newSelection.first;
+                        },
+                      ),
 
-              const SizedBox(height: 12),
+                      const SizedBox(height: 12),
 
-              // Note input
-              TextField(
-                controller: textController,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  hintText: 'Enter note...',
-                  border: const OutlineInputBorder(),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.add_circle),
-                    onPressed: () {
-                      if (textController.text.trim().isNotEmpty) {
-                        notesProvider.addNote(
-                          classCode: classData.code,
-                          content: textController.text.trim(),
-                          type: selectedType.value,
-                        );
-                        textController.clear();
-                      }
-                    },
-                  ),
-                ),
-                onSubmitted: (value) {
-                  if (value.trim().isNotEmpty) {
-                    notesProvider.addNote(
-                      classCode: classData.code,
-                      content: value.trim(),
-                      type: selectedType.value,
-                    );
-                    textController.clear();
-                  }
-                },
-              ),
-
-              const SizedBox(height: 24),
-
-              // Notes list
-              Text(
-                'Notes (${notes.length})',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-
-              // Notes
-              Expanded(
-                child: notes.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.note_add_outlined,
-                              size: 64,
-                              color: Theme.of(context).colorScheme.outline,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No notes yet',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.outline,
+                      // Note input
+                      TextField(
+                        controller: textController,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          hintText: 'Enter note...',
+                          border: const OutlineInputBorder(),
+                          suffixIcon: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (editingNote.value != null)
+                                IconButton(
+                                  icon: const Icon(Icons.close),
+                                  tooltip: 'Cancel edit',
+                                  onPressed: () {
+                                    editingNote.value = null;
+                                    textController.clear();
+                                    selectedType.value = NoteType.general;
+                                  },
+                                ),
+                              IconButton(
+                                icon: Icon(
+                                  editingNote.value != null
+                                      ? Icons.check_circle
+                                      : Icons.add_circle,
+                                ),
+                                tooltip: editingNote.value != null
+                                    ? 'Save changes'
+                                    : 'Add note',
+                                onPressed: () {
+                                  if (textController.text.trim().isNotEmpty) {
+                                    if (editingNote.value != null) {
+                                      notesProvider.updateNote(
+                                        editingNote.value!.copyWith(
+                                          content: textController.text.trim(),
+                                          type: selectedType.value,
+                                        ),
+                                      );
+                                      editingNote.value = null;
+                                    } else {
+                                      notesProvider.addNote(
+                                        classCode: classData.code,
+                                        content: textController.text.trim(),
+                                        type: selectedType.value,
+                                      );
+                                    }
+                                    textController.clear();
+                                    selectedType.value = NoteType.general;
+                                  }
+                                },
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      )
-                    : ListView.builder(
-                        itemCount: notes.length,
-                        itemBuilder: (context, index) {
-                          final note = notes[index];
-                          return _NoteCard(
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Notes list header
+                      Text(
+                        'Notes (${notes.length})',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Notes list
+                      if (notes.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 32),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.note_add_outlined,
+                                  size: 64,
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'No notes yet',
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.outline,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      else
+                        ...notes.map(
+                          (note) => _NoteCard(
                             note: note,
+                            onEdit: () {
+                              editingNote.value = note;
+                              textController.text = note.content;
+                              selectedType.value = note.type;
+                            },
                             onDelete: () => notesProvider.deleteNote(
                               note.id,
                               classData.code,
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
@@ -189,9 +227,14 @@ class ClassNotesDialog extends HookWidget {
 /// Individual note card widget
 class _NoteCard extends StatelessWidget {
   final ClassNote note;
+  final VoidCallback onEdit;
   final VoidCallback onDelete;
 
-  const _NoteCard({required this.note, required this.onDelete});
+  const _NoteCard({
+    required this.note,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -230,6 +273,20 @@ class _NoteCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
+                // Edit button
+                InkWell(
+                  onTap: onEdit,
+                  borderRadius: BorderRadius.circular(16),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Icon(
+                      Icons.edit_outlined,
+                      size: 18,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4),
                 // Delete button
                 InkWell(
                   onTap: onDelete,

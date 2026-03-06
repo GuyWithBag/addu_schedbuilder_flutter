@@ -68,9 +68,10 @@ class ScheduleTableWidget extends HookWidget {
                   // Header row with weekdays
                   _buildHeaderRow(theme, displayConfig),
                   // Time slots
-                  ...table.rows.map(
-                    (row) => _buildTimeRow(
-                      row,
+                  ...table.rows.asMap().entries.map(
+                    (entry) => _buildTimeRow(
+                      entry.value,
+                      entry.key,
                       displayConfig.is24HourFormat,
                       classColors,
                       theme,
@@ -154,21 +155,54 @@ class ScheduleTableWidget extends HookWidget {
     );
   }
 
+  /// Pixels per minute scale factor for row heights
+  static const double _pixelsPerMinute = 1.5;
+
+  /// Minimum row height to keep short rows readable
+  static const double _minRowHeight = 30.0;
+
+  /// Compute the pixel height for a single row based on its duration
+  double _rowHeight(ScheduleRow row) {
+    return (row.duration * _pixelsPerMinute).clamp(
+      _minRowHeight,
+      double.infinity,
+    );
+  }
+
+  /// Compute the total pixel height for a slot spanning multiple rows
+  double _spannedHeight(int startRowIndex, int rowspan) {
+    var total = 0.0;
+    for (
+      var i = startRowIndex;
+      i < startRowIndex + rowspan && i < table.rows.length;
+      i++
+    ) {
+      total += _rowHeight(table.rows[i]);
+    }
+    return total;
+  }
+
   Widget _buildTimeRow(
     ScheduleRow row,
+    int rowIndex,
     bool is24HourFormat,
     Map<String, ColorSet> classColors,
     ThemeData theme,
     DisplayConfigProvider displayConfig,
   ) {
+    final height = _rowHeight(row);
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Time cell
-        ScheduleTimeCell(
-          time: row.time,
-          is24HourFormat: is24HourFormat,
-          duration: row.duration,
+        SizedBox(
+          height: height,
+          child: ScheduleTimeCell(
+            time: row.time,
+            is24HourFormat: is24HourFormat,
+            duration: row.duration,
+          ),
         ),
         // Day cells
         ...row.columns.asMap().entries.map<Widget>((entry) {
@@ -180,7 +214,7 @@ class ScheduleTableWidget extends HookWidget {
           if (slot == null) {
             return Container(
               width: 100,
-              height: row.duration.toDouble(),
+              height: height,
               decoration: BoxDecoration(
                 color: weekdayColor.withValues(alpha: 0.1),
                 border: Border(
@@ -198,9 +232,10 @@ class ScheduleTableWidget extends HookWidget {
 
           if (slot is ClassSlot) {
             final colorSet = classColors[slot.classData.subject];
+            final slotHeight = _spannedHeight(rowIndex, slot.rowspan);
             return Container(
               width: 100.0 * slot.colspan,
-              height: 60.0 * slot.rowspan,
+              height: slotHeight,
               decoration: BoxDecoration(
                 border: Border(
                   right: BorderSide(color: displayConfig.tableBorderColor),
@@ -219,9 +254,10 @@ class ScheduleTableWidget extends HookWidget {
               ),
             );
           } else if (slot is BarSlot) {
+            final slotHeight = _spannedHeight(rowIndex, slot.rowspan);
             return Container(
               width: 100.0 * slot.colspan,
-              height: 60.0 * slot.rowspan,
+              height: slotHeight,
               decoration: BoxDecoration(
                 border: Border(
                   right: BorderSide(color: displayConfig.tableBorderColor),
@@ -236,9 +272,10 @@ class ScheduleTableWidget extends HookWidget {
             );
           } else {
             final emptySlot = slot as EmptySlot;
+            final slotHeight = _spannedHeight(rowIndex, emptySlot.rowspan);
             return Container(
               width: 100.0 * emptySlot.colspan,
-              height: 60.0 * emptySlot.rowspan,
+              height: slotHeight,
               decoration: BoxDecoration(
                 color: weekdayColor.withValues(alpha: 0.1),
                 border: Border(
